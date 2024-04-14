@@ -152,6 +152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7deaf567265a5744b5b93cd7ab41f03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  car: {fileID: 1183840734}
+  flag: {fileID: 1426531497}
+  distance: {fileID: 1746980423}
 --- !u!4 &204181740
 Transform:
   m_ObjectHideFlags: 0
@@ -630,8 +633,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 0
-  oneClickSpeed: 0.2
   lineRenderer: {fileID: 674538394}
+  flag: {fileID: 1426531497}
 --- !u!82 &1183840738
 AudioSource:
   m_ObjectHideFlags: 0
