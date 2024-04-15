@@ -8,21 +8,24 @@ public class CarController : MonoBehaviour
     [SerializeField] private GameObject flag;
     private static readonly float STOP_SPEED = 0.002f;
     private static readonly float SPEED_LOSE = 0.96f;
-
+    
     private Vector2 startPos;
     private Vector2 lastPos;
     private Camera _cam;
     private AudioSource audioSource;
     private Vector3 cameraOffset;
 
-    private NetworkManager NetworkManager;
+    private NetworkManager networkManager;
+    private GameDirector gameDirector;
     private void Awake()
     {
         /* Initialize */
         _cam = Camera.main;
         Debug.Assert(_cam != null);
-        NetworkManager = FindObjectOfType<NetworkManager>();
-        Debug.Assert(NetworkManager != null);
+        networkManager = FindObjectOfType<NetworkManager>();
+        Debug.Assert(networkManager != null);
+        gameDirector = FindObjectOfType<GameDirector>();
+        Debug.Assert(gameDirector != null);
         TryGetComponent(out audioSource);
 
         /* set params */
@@ -31,6 +34,10 @@ public class CarController : MonoBehaviour
 
     private void Update()
     {
+        if (gameDirector.gameType != GameDirector.EGameType.InGame)
+        {
+            return;
+        }
         if (Input.GetMouseButtonDown(0))
         {
             startPos = Input.mousePosition;
@@ -63,7 +70,7 @@ public class CarController : MonoBehaviour
             audioSource.Play();
             
             /* NetWork */
-            this.NetworkManager.networkFlag = 1;
+            this.networkManager.networkFlag = 1;
         }
         
         transform.Translate(this.speed, 0,0);
@@ -78,9 +85,9 @@ public class CarController : MonoBehaviour
     {
         speed = 0;
         float length = flag.transform.position.x - transform.position.x;
-        if (length >= 0 && NetworkManager.networkFlag == 1)
+        if (length >= 0 && networkManager.networkFlag == 1)
         {
-            NetworkManager.SendLengthToServer(length);
+            networkManager.SendLengthToServer(length);
         }
     }
     
