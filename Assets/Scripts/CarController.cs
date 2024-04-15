@@ -23,7 +23,7 @@ public class CarController : MonoBehaviour
         _cam = Camera.main;
         Debug.Assert(_cam != null);
         networkManager = FindObjectOfType<NetworkManager>();
-        Debug.Assert(networkManager != null);
+            Debug.Assert(networkManager != null);
         gameDirector = FindObjectOfType<GameDirector>();
         Debug.Assert(gameDirector != null);
         TryGetComponent(out audioSource);
@@ -87,7 +87,8 @@ public class CarController : MonoBehaviour
         float length = flag.transform.position.x - transform.position.x;
         if (length >= 0 && networkManager.networkFlag == 1)
         {
-            networkManager.SendLengthToServer(length);
+            // networkManager.SendLengthToServer(length);
+            gameDirector.gameType = GameDirector.EGameType.GameEnd;
         }
     }
     

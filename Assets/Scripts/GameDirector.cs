@@ -18,9 +18,8 @@ public class GameDirector : MonoBehaviour
     [SerializeField] private GameObject car;
     [SerializeField] private GameObject flag;
     [SerializeField] private GameObject distance;
-
     private TextMeshProUGUI distanceTMP;
-    [field:SerializeField] public EGameType gameType { get; private set; } = EGameType.Login;
+    [field:SerializeField] public EGameType gameType { get; set; } = EGameType.Login;
     private void Start()
     {
         distanceTMP = distance.GetComponent<TextMeshProUGUI>();
@@ -52,5 +51,10 @@ public class GameDirector : MonoBehaviour
                 Debug.LogError("Switch Out Of Case");
                 break;
         }
+    }
+
+    private void OnApplicationQuit()
+    {
+        
     }
 }
