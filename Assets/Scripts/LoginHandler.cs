@@ -9,6 +9,7 @@ public class LoginHandler : MonoBehaviour
 {
     private static readonly string ERRORCODE_SHORT_ID_OR_PW = "아이디와 비밀번호가 너무 짧습니다.";
     private static readonly string ERRORCODE_LONG_ID_OR_PW = "아이디와 비밀번호가 너무 깁니다.";
+    private static readonly string ERRORCODE_LOGIN_FAIL = "로그인이 실패하였습니다. ID와 PASSWORD가 존재하지 않습니다.";
     private static readonly Color redFadeInColor = new Color(1, 0, 0, 0);
     
     private NetworkManager networkManager;
@@ -33,16 +34,29 @@ public class LoginHandler : MonoBehaviour
             SetErrorCode(ERRORCODE_LONG_ID_OR_PW);
             return;
         }
-
+        
+        // 16 + 16 byte의 id와 password byte를 만들고
         byte[] IdBytes = new byte[16];
         byte[] PasswordBytes = new byte[16];
-
+        
+        // 인코딩을 통해 byte로 변환
         IdBytes = Encoding.UTF8.GetBytes(id.text.PadRight(16, '\0'));
         PasswordBytes = Encoding.UTF8.GetBytes(pw.text.PadRight(16, '\0'));
 
+        // 패킷으로 패킹해준다.
         byte[] loginPacket = PacketData.PackPacket(PacketData.EPacketType.RequireCreateUser, IdBytes, PasswordBytes);
     }
 
+    public void LoginFail()
+    {
+        SetErrorCode(ERRORCODE_LOGIN_FAIL, 2);
+    }
+
+    public void Login()
+    {
+        Debug.Log("로그인에 성공하였습니다.");
+    }
+    
     public void CreateUser()
     {
         if (id.text.Length < 2 || pw.text.Length < 2)
@@ -58,10 +72,10 @@ public class LoginHandler : MonoBehaviour
         
     }
 
-    private void SetErrorCode(string str)
+    private void SetErrorCode(string str, float time = 1)
     {
         errorCode.text = str;
-        StartCoroutine(ErrorCodeFadeIn(1f));
+        StartCoroutine(ErrorCodeFadeIn(time));
     }
     private IEnumerator ErrorCodeFadeIn(float time)
     {

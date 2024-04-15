@@ -101,7 +101,20 @@ public class NetworkManager : MonoBehaviour
 
     private void ProcessPacket(byte[] packetBuffer, int packetSize)
     {
-        Debug.Log("Received complete packet with size: " + packetSize);
-        
+        byte[] data = new byte[packetSize - sizeof(int) - sizeof(PacketData.EPacketType)];
+        PacketData.EPacketType packetType = (PacketData.EPacketType)BitConverter.ToInt32(partialBuffer, sizeof(int));
+        Array.Copy(data, 0, partialBuffer, sizeof(int) + sizeof(PacketData.EPacketType), packetSize - sizeof(int) - sizeof(PacketData.EPacketType));
+        Debug.Log($"Received complete packet with size: {packetSize}, PacketType = {packetType}");
+        switch (packetType)
+        {
+            case PacketData.EPacketType.RequireUserLogin:
+                
+                break;
+            case PacketData.EPacketType.RequireCreateUser:
+                
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 }
