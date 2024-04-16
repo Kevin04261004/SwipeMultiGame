@@ -20,6 +20,9 @@ public class LoginHandler : MonoBehaviour
     {
         networkManager = FindObjectOfType<NetworkManager>();
         Debug.Assert(networkManager != null);
+
+        PacketHandler.SetHandler(PacketData.EPacketType.UserLoginSuccess, Login);
+        PacketHandler.SetHandler(PacketData.EPacketType.UserLoginFail, LoginFail);
     }
 
     public void TryLogin()
@@ -29,7 +32,7 @@ public class LoginHandler : MonoBehaviour
             SetErrorCode(ERRORCODE_SHORT_ID_OR_PW);
             return;
         }
-        if (id.text.Length < 16 || pw.text.Length < 16)
+        if (id.text.Length > 16 || pw.text.Length > 16)
         {
             SetErrorCode(ERRORCODE_LONG_ID_OR_PW);
             return;
@@ -44,15 +47,16 @@ public class LoginHandler : MonoBehaviour
         PasswordBytes = Encoding.UTF8.GetBytes(pw.text.PadRight(16, '\0'));
 
         // 패킷으로 패킹해준다.
-        byte[] loginPacket = PacketData.PackPacket(PacketData.EPacketType.RequireCreateUser, IdBytes, PasswordBytes);
+        byte[] loginPacket = PacketHandler.PackPacket(PacketData.EPacketType.RequireCreateUser, IdBytes, PasswordBytes);
+        networkManager.SendToServer(loginPacket);
     }
 
-    public void LoginFail()
+    private void LoginFail()
     {
         SetErrorCode(ERRORCODE_LOGIN_FAIL, 2);
     }
 
-    public void Login()
+    private void Login()
     {
         Debug.Log("로그인에 성공하였습니다.");
     }
@@ -82,20 +86,15 @@ public class LoginHandler : MonoBehaviour
         float elapsedTime = 0f;
         while (elapsedTime < time)
         {
-            // Calculate the interpolation factor
             float t = elapsedTime / time;
             
-            // Lerp between the start color and the target color
             errorCode.color = Color.Lerp(Color.red, redFadeInColor, t);
             
-            // Increment the elapsed time
             elapsedTime += Time.deltaTime;
             
-            // Wait for the next frame
             yield return null;
         }
         
-        // Ensure the final color is exactly the target color
         errorCode.color = Color.clear;
     }
 }

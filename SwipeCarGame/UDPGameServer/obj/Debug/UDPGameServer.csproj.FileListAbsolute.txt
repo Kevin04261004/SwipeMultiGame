@@ -37,3 +37,42 @@ D:\visual studio\2-1 Network Course\SwipeCarGame\UDPGameServer\bin\Debug\System.
 D:\visual studio\2-1 Network Course\SwipeCarGame\UDPGameServer\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
 D:\visual studio\2-1 Network Course\SwipeCarGame\UDPGameServer\bin\Debug\System.Threading.Tasks.Extensions.xml
 D:\visual studio\2-1 Network Course\SwipeCarGame\UDPGameServer\obj\Debug\UDPGameServer.csproj.CopyComplete
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\obj\Debug\UDPGameServer.csproj.AssemblyReference.cache
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\obj\Debug\UDPGameServer.csproj.CoreCompileInputs.cache
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\obj\Debug\UDPGameServer.exe
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\obj\Debug\UDPGameServer.pdb
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\UDPGameServer.exe.config
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\UDPGameServer.exe
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\UDPGameServer.pdb
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\BouncyCastle.Cryptography.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\Google.Protobuf.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\K4os.Compression.LZ4.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\K4os.Compression.LZ4.Streams.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\K4os.Hash.xxHash.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\MySql.Data.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Buffers.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Configuration.ConfigurationManager.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Diagnostics.DiagnosticSource.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.IO.Pipelines.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Memory.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Numerics.Vectors.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Threading.Tasks.Extensions.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\ZstdSharp.dll
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\BouncyCastle.Cryptography.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\Google.Protobuf.pdb
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\Google.Protobuf.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\K4os.Compression.LZ4.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\K4os.Compression.LZ4.Streams.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\K4os.Hash.xxHash.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\Microsoft.Bcl.AsyncInterfaces.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\MySql.Data.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Buffers.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Diagnostics.DiagnosticSource.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.IO.Pipelines.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Memory.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Numerics.Vectors.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\bin\Debug\System.Threading.Tasks.Extensions.xml
+D:\GitHub\SwipeMultiGame\SwipeCarGame\UDPGameServer\obj\Debug\UDPGameServer.csproj.CopyComplete
