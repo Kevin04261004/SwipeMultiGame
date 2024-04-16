@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace UDPGameServer
 {
     public static class ServerHandler
     {
+        // 추후 잡 타이머 방식을 통해 리스트에 존재하는 모든 클라이언트들이 튕기지는 않았는지? 접속이 이상한지는 않은지 확인해보기.
+        public static List<IPEndPoint> connectedClients = new List<IPEndPoint>();
+        
+
         public static void ServerFunction(object obj_)
         {
             Socket serverSocket = new Socket(AddressFamily.InterNetwork,

@@ -47,7 +47,7 @@ public class LoginHandler : MonoBehaviour
         PasswordBytes = Encoding.UTF8.GetBytes(pw.text.PadRight(16, '\0'));
 
         // 패킷으로 패킹해준다.
-        byte[] loginPacket = PacketHandler.PackPacket(PacketData.EPacketType.RequireCreateUser, IdBytes, PasswordBytes);
+        byte[] loginPacket = PacketHandler.PackPacket(PacketData.EPacketType.RequireUserLogin, IdBytes, PasswordBytes);
         networkManager.SendToServer(loginPacket);
     }
 
@@ -60,7 +60,7 @@ public class LoginHandler : MonoBehaviour
     {
         Debug.Log("로그인에 성공하였습니다.");
     }
-    
+
     public void CreateUser()
     {
         if (id.text.Length < 2 || pw.text.Length < 2)

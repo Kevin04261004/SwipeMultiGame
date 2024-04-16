@@ -6,7 +6,7 @@ namespace UDPGameServer
 {
     public static partial class PacketHandler
     {
-        public delegate void PacketHandlerEvent(IPEndPoint endPoint);
+        public delegate void PacketHandlerEvent(IPEndPoint endPoint, byte[] data);
 
         private static Dictionary<PacketData.EPacketType, PacketHandlerEvent> packetHandlerEvents =
             new Dictionary<PacketData.EPacketType, PacketHandlerEvent>();
@@ -36,7 +36,7 @@ namespace UDPGameServer
 
             if (packetHandlerEvents.ContainsKey(packetType) && packetHandlerEvents[packetType] != null)
             {
-                packetHandlerEvents[packetType](endPoint);
+                packetHandlerEvents[packetType](endPoint, null);
             }
             else
             {

@@ -36,9 +36,7 @@ public class NetworkManager : MonoBehaviour
     private void ConnectUDPAndReceiveThreadStart()
     {
         // UDP는 간접적으로 연결을 하기 위해서 클라이언트에서 서버에 먼저 데이터를 보내야만 ReceiveFrom()함수를 사용할 수 있음.
-        byte[] connectUDP = PacketHandler.PackPacket(PacketData.EPacketType.ConnectUDP);
-        Debug.Log("[Client] Try Send UDP Server");
-        SendToServer(connectUDP);
+        Connect();
         
         // 멀티스레드를 활용하여 서버로부터 ReceiveFrom()함수로 계속 블락킹 및 Packet 처리
         receiveThread = new Thread(ReceiveFromServer)
@@ -46,6 +44,28 @@ public class NetworkManager : MonoBehaviour
             IsBackground = true
         };
         receiveThread.Start();
+    }
+
+    #region 서버 접속과 종료
+
+    private void Connect()
+    {
+        byte[] connectUDP = PacketHandler.PackPacket(PacketData.EPacketType.ConnectClient);
+        Debug.Log("[Client] Try Connect to UDP Server");
+        SendToServer(connectUDP);
+    }
+    private void Disconnect()
+    {
+        byte[] connectUDP = PacketHandler.PackPacket(PacketData.EPacketType.DisconnectClient);
+        Debug.Log("[Client] Exit UDP Server");
+        SendToServer(connectUDP);
+    }
+
+    #endregion
+
+    private void OnApplicationQuit()
+    {
+        Disconnect();
     }
     
     // 서버에게 바이트를 보낸다.
