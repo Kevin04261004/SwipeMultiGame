@@ -4,7 +4,7 @@ using UnityEngine;
 
 public static class PacketHandler
 {
-    public delegate void PacketHandlerEvent();
+    public delegate void PacketHandlerEvent(byte[] data);
 
     private static Dictionary<PacketData.EPacketType, PacketHandlerEvent> packetHandlerEvents =
         new Dictionary<PacketData.EPacketType, PacketHandlerEvent>();
@@ -33,7 +33,7 @@ public static class PacketHandler
 
         if (packetHandlerEvents.ContainsKey(packetType) && packetHandlerEvents[packetType] != null)
         {
-            packetHandlerEvents[packetType]();
+            packetHandlerEvents[packetType](data);
         }
         else
         {
@@ -86,7 +86,7 @@ public static class PacketHandler
         // Packet Type (enum - 4byte)
         // + ID (16byte)
         // + Password (16byte)
-        int size = sizeof(int) + sizeof(int) + byte1.Length + byte2.Length;
+        int size = sizeof(int) + sizeof(PacketData.EPacketType) + byte1.Length + byte2.Length;
         byte[] sizeBytes = BitConverter.GetBytes(size);
         byte[] packetTypeBytes = BitConverter.GetBytes((int)packetType);
         
@@ -101,6 +101,32 @@ public static class PacketHandler
         Array.Copy(byte1, 0, result, offset, byte1.Length);
         offset += byte1.Length;
         Array.Copy(byte2, 0, result, offset, byte2.Length);
+
+        return result;
+    }
+    public static byte[] PackPacket(PacketData.EPacketType packetType, byte[] byte1, byte[] byte2, byte[] byte3)
+    {
+        // Byte Size (int - 4byte)
+        // Packet Type (enum - 4byte)
+        // + ID (16byte)
+        // + Password (16byte)
+        int size = sizeof(int) + sizeof(PacketData.EPacketType) + byte1.Length + byte2.Length + byte3.Length;
+        byte[] sizeBytes = BitConverter.GetBytes(size);
+        byte[] packetTypeBytes = BitConverter.GetBytes((int)packetType);
+        
+        // add all bytes
+        byte[] result = new byte[size];
+        
+        int offset = 0;
+        Array.Copy(sizeBytes, 0, result, offset, sizeof(int));
+        offset += sizeof(int);
+        Array.Copy(packetTypeBytes, 0, result, offset, sizeof(int));
+        offset += sizeof(int);
+        Array.Copy(byte1, 0, result, offset, byte1.Length);
+        offset += byte1.Length;
+        Array.Copy(byte2, 0, result, offset, byte2.Length);
+        offset += byte2.Length;
+        Array.Copy(byte3, 0, result, offset, byte3.Length);
 
         return result;
     }

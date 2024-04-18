@@ -30,7 +30,37 @@ namespace UDPGameServer
             try
             {
                 connection.Open();
-                string sql = $"SELECT COUNT(*) FROM user WHERE id = {id} AND password = {password}";
+                string sql = $"SELECT COUNT(*) FROM user WHERE id = \'{id}\' AND password = \'{password}\'";
+                MySqlCommand cmd = new MySqlCommand(sql, connection);
+
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+
+                connection.Close();
+
+                return count > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+            finally
+            {
+                if (connection != null)
+                {
+                    connection.Close();
+                }
+            }
+        }
+
+        /* mySQL중 user 테이블에 아이디가 존재한다면 true를 리턴하는 함수 */
+        public static bool TryCheckUserID(string id)
+        {
+            Debug.Assert(connection != null);
+            try
+            {
+                connection.Open();
+                string sql = $"SELECT COUNT(*) FROM user WHERE id = \'{id}\'";
                 MySqlCommand cmd = new MySqlCommand(sql, connection);
 
                 int count = Convert.ToInt32(cmd.ExecuteScalar());
@@ -57,17 +87,14 @@ namespace UDPGameServer
             Debug.Assert(connection != null);
             try
             {
-                // Check if the user already exists
-                if (!TryCheckUser(id, password))
+                if (!TryCheckUserID(id))
                 {
-                    // User does not exist, so insert a new user
-                    SwipeGame_User newUser = new SwipeGame_User(id, password, nickName); // Assuming you have a User class with properties Id and Password
-                    InsertData(newUser); // Insert the new user into the database
-                    return true; // Return true indicating that the user was created successfully
+                    SwipeGame_User newUser = new SwipeGame_User(id, password, nickName);
+                    InsertData(newUser);
+                    return true;
                 }
                 else
                 {
-                    // User already exists, return false
                     return false;
                 }
             }

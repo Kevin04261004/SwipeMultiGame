@@ -9,11 +9,21 @@ namespace UDPGameServer
     {
         // 추후 잡 타이머 방식을 통해 리스트에 존재하는 모든 클라이언트들이 튕기지는 않았는지? 접속이 이상한지는 않은지 확인해보기.
         public static List<IPEndPoint> connectedClients = new List<IPEndPoint>();
-        
-
+        public static Socket serverSocket;
+        public static void SendToClientList(byte[] bytes)
+        {
+            if (serverSocket == null)
+            {
+                return;
+            }
+            foreach (IPEndPoint client in connectedClients)
+            {
+                serverSocket.SendTo(bytes, client);
+            }
+        }
         public static void ServerFunction(object obj_)
         {
-            Socket serverSocket = new Socket(AddressFamily.InterNetwork,
+            serverSocket = new Socket(AddressFamily.InterNetwork,
                 SocketType.Dgram, ProtocolType.Udp);
             IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 10200);
 
