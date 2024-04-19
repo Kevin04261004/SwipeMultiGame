@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
+using Util;
 
 public class LoginHandler : MonoBehaviour
 {
@@ -16,6 +17,7 @@ public class LoginHandler : MonoBehaviour
     private static readonly string ERRORCODE_CREATE_USER_FAIL = "계정 생성에 실패하였습니다.";
     private static readonly Color redFadeInColor = new Color(1, 0, 0, 0);
 
+    private InGameHandler inGameHandler;
     private NetworkManager networkManager;
     [SerializeField] private TextMeshProUGUI id;
     [SerializeField] private TextMeshProUGUI pw;
@@ -29,6 +31,8 @@ public class LoginHandler : MonoBehaviour
         networkManager = FindObjectOfType<NetworkManager>();
         Debug.Assert(networkManager != null);
 
+        inGameHandler = FindObjectOfType<InGameHandler>();
+        
         PacketHandler.SetHandler(PacketData.EPacketType.UserLoginSuccess, Login);
         PacketHandler.SetHandler(PacketData.EPacketType.UserLoginFail, LoginFail);
         PacketHandler.SetHandler(PacketData.EPacketType.AllowCreateUserData, CreateUserDataAllowed);
@@ -56,9 +60,9 @@ public class LoginHandler : MonoBehaviour
         print($"idByte:{IdBytes.Length}, PasswordByte:{PasswordBytes.Length}");
 
         // 인코딩을 통해 byte로 변환
-        IdBytes = Encoding.UTF8.GetBytes(id.text.PadRight(16, '\0'));
-        PasswordBytes = Encoding.UTF8.GetBytes(pw.text.PadRight(16, '\0'));
-            
+        IdBytes = id.text.PadRight(16, '\0').ChangeToByte();
+        PasswordBytes = pw.text.PadRight(16, '\0').ChangeToByte();
+        
         // id와 password의 바이트 배열을 16바이트로 자릅니다.
         Array.Resize(ref IdBytes, 16);
         Array.Resize(ref PasswordBytes, 16);
@@ -75,11 +79,11 @@ public class LoginHandler : MonoBehaviour
         MainThreadWorker.Instance.EnqueueJob(()=>SetErrorCode(ERRORCODE_LOGIN_FAIL, 3));
     }
 
-    private void Login(byte[] data = null) // data = nickName
+    private void Login(byte[] data) // data = id(16), nickName
     {
         Debug.Log("로그인에 성공하였습니다.");
         
-        // TODO: 게임 시작
+        MainThreadWorker.Instance.EnqueueJob(() => inGameHandler.StartGame(data));
     }
 
     private void CreateUserDataAllowed(byte[] data = null)
@@ -113,8 +117,8 @@ public class LoginHandler : MonoBehaviour
         byte[] PasswordBytes = new byte[16];
 
         // 인코딩을 통해 byte로 변환
-        IdBytes = Encoding.UTF8.GetBytes(id.text.PadRight(16, '\0'));
-        PasswordBytes = Encoding.UTF8.GetBytes(pw.text.PadRight(16, '\0'));
+        IdBytes = id.text.PadRight(16, '\0').ChangeToByte();
+        PasswordBytes = pw.text.PadRight(16, '\0').ChangeToByte();
             
         // id와 password의 바이트 배열을 16바이트로 자릅니다.
         Array.Resize(ref IdBytes, 16);
@@ -149,9 +153,9 @@ public class LoginHandler : MonoBehaviour
         byte[] NickNameBytes = new byte[16];
 
         // 인코딩을 통해 byte로 변환
-        IdBytes = Encoding.UTF8.GetBytes(id.text.PadRight(16, '\0'));
-        PasswordBytes = Encoding.UTF8.GetBytes(pw.text.PadRight(16, '\0'));
-        NickNameBytes = Encoding.UTF8.GetBytes(nickName.text.PadRight(16, '\0'));
+        IdBytes = id.text.PadRight(16, '\0').ChangeToByte();
+        PasswordBytes = pw.text.PadRight(16, '\0').ChangeToByte();
+        NickNameBytes = nickName.text.PadRight(16, '\0').ChangeToByte();
         
         // id와 password, nickName의 바이트 배열을 16바이트로 자릅니다.
         Array.Resize(ref IdBytes, 16);
@@ -162,12 +166,11 @@ public class LoginHandler : MonoBehaviour
         byte[] newUserBytes = PacketHandler.PackPacket(PacketData.EPacketType.CreateUser, IdBytes, PasswordBytes, NickNameBytes);
         networkManager.SendToServer(newUserBytes);
     }
-    private void UserCreateSuccess(byte[] data) // data = nickName
+    private void UserCreateSuccess(byte[] data) // data = id(16), nickName
     {
         Debug.Log("유저가 계정을 생성하였습니다.");
         
-        // TODO: 게임 시작
-        
+        MainThreadWorker.Instance.EnqueueJob(() => inGameHandler.StartGame(data));
     }
     private void UserCreateFail(byte[] data = null)
     {

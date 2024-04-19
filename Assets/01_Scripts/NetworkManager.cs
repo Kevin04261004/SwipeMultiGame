@@ -13,6 +13,7 @@ public class NetworkManager : MonoBehaviour
     private Thread receiveThread;
     private byte[] partialBuffer = new byte[1024];
 
+    public string hostId { get; set; } = null;
     private int partialBytesReceived = 0;
     public void Awake()
     {
@@ -74,7 +75,7 @@ public class NetworkManager : MonoBehaviour
         clientSocket.SendTo(bytes, serverEndPoint);
     }
 
-    public void ReceiveFromServer()
+    private void ReceiveFromServer()
     {
         while (true)
         {

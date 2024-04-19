@@ -13,18 +13,18 @@ public class GameDirector : MonoBehaviour
         GameEnd,
         Pause,
     };
-    
-    
-    [SerializeField] private GameObject car;
+
+
+    public GameObject car { get; set; }
     [SerializeField] private GameObject flag;
     [SerializeField] private GameObject distance;
     private TextMeshProUGUI distanceTMP;
-    [field:SerializeField] public EGameType gameType { get; set; } = EGameType.Login;
-    private void Start()
+    [field:ReadOnly(false)] [field:SerializeField] public EGameType gameType { get; set; } = EGameType.Login;
+    private void Awake()
     {
         distanceTMP = distance.GetComponent<TextMeshProUGUI>();
     }
-
+    
     private void Update()
     {
         switch (gameType)

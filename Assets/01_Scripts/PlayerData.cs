@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class PlayerData
 {
+    public string id;
     public string nickName;
     public string level;
     public string highScore;

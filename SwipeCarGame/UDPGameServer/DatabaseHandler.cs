@@ -22,7 +22,6 @@ namespace UDPGameServer
             string strConn = $"Server=localhost;Database={DB_NAME};Uid={USER_ID};Pwd={PASSWORD};";
             connection = new MySqlConnection(strConn);
         }
-
         /* mySQL중 user 테이블에 비번과 아이디가 존재한다면 true를 리턴하는 함수 */
         public static bool TryCheckUser(string id, string password)
         {
@@ -52,7 +51,6 @@ namespace UDPGameServer
                 }
             }
         }
-
         /* mySQL중 user 테이블에 아이디가 존재한다면 true를 리턴하는 함수 */
         public static bool TryCheckUserID(string id)
         {
@@ -82,6 +80,41 @@ namespace UDPGameServer
                 }
             }
         }
+        public static bool GetUserNickName(string id, string password, out string nickName)
+        {
+            Debug.Assert(connection != null);
+            try
+            {
+                connection.Open();
+                string sql = $"SELECT nickName FROM user WHERE id = \'{id}\' AND password = \'{password}\'";
+                MySqlCommand cmd = new MySqlCommand(sql, connection);
+
+                object result = cmd.ExecuteScalar();
+                if (result != null)
+                {
+                    nickName = result.ToString();
+                }
+                else
+                {
+                    goto return_fail;
+                }
+                connection.Close();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                goto return_fail;
+            }
+            finally
+            {
+                connection.Close();
+            }
+return_fail:
+            connection.Close();
+            nickName = null;
+            return false;
+        }
         public static bool CreateUser(string id, string password, string nickName)
         {
             Debug.Assert(connection != null);
@@ -104,7 +137,6 @@ namespace UDPGameServer
                 return false;
             }
         }
-
         private static void InsertData<T>(T table)
         {
             Debug.Assert(connection != null);
@@ -154,7 +186,6 @@ namespace UDPGameServer
                 }
             }
         }
-
         private static void SelectData<T>(string condition)
         {
             Debug.Assert(connection != null);
@@ -191,7 +222,6 @@ namespace UDPGameServer
                 }
             }
         }
-
         private static string GetTableName<T>()
         {
             return typeof(T).ToString().GetTableName();

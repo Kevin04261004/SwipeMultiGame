@@ -49,19 +49,28 @@ namespace UDPGameServer
             offset += SwipeGame_User.ID_SIZE; // offset을 ID 크기만큼 증가시킵니다.
             Array.Copy(data, offset, passwordBytes, 0, SwipeGame_User.PASSWORD_SIZE);
 
-            string id = Encoding.UTF8.GetString(idBytes);
-            string password = Encoding.UTF8.GetString(passwordBytes);
+            string id = idBytes.ChangeToString();
+            string password = passwordBytes.ChangeToString();
 
             bool bHasUserData = DatabaseHandler.TryCheckUser(id, password);
+            byte[] buf;
             if (bHasUserData)
             {
-                byte[] buf = PackPacket(PacketData.EPacketType.UserLoginSuccess);
+                DatabaseHandler.GetUserNickName(id, password, out string nickName);
+                if(string.IsNullOrEmpty(nickName))
+                {
+                    buf = PackPacket(PacketData.EPacketType.UserLoginFail);
+                    ServerHandler.SendToClientList(buf);
+                    Console.WriteLine($"[{endPoint}] User Login FAIL ({id}, {password})");
+                    return;
+                }
+                buf = PackPacket(PacketData.EPacketType.UserLoginSuccess, idBytes, nickName.ChangeToByte());
                 ServerHandler.SendToClientList(buf);
                 Console.WriteLine($"[{endPoint}] User Login SUCCESS ({id}, {password})");
             }
             else
             {
-                byte[] buf = PackPacket(PacketData.EPacketType.UserLoginFail);
+                buf = PackPacket(PacketData.EPacketType.UserLoginFail);
                 ServerHandler.SendToClientList(buf);
                 Console.WriteLine($"[{endPoint}] User Login FAIL ({id}, {password})");
             }
@@ -83,8 +92,8 @@ namespace UDPGameServer
             offset += SwipeGame_User.ID_SIZE; // offset을 ID 크기만큼 증가시킵니다.
             Array.Copy(data, offset, passwordBytes, 0, SwipeGame_User.PASSWORD_SIZE);
 
-            string id = Encoding.UTF8.GetString(idBytes);
-            string password = Encoding.UTF8.GetString(passwordBytes);
+            string id = idBytes.ChangeToString();
+            string password = passwordBytes.ChangeToString();
 
             bool bHasUserData = DatabaseHandler.TryCheckUserID(id);
             if (bHasUserData)
@@ -121,15 +130,15 @@ namespace UDPGameServer
             offset += SwipeGame_User.PASSWORD_SIZE;
             Array.Copy(data, offset, nickNameBytes, 0, SwipeGame_User.NICKNAME_SIZE);
 
-            string id = Encoding.UTF8.GetString(idBytes);
-            string password = Encoding.UTF8.GetString(passwordBytes);
-            string nickName = Encoding.UTF8.GetString(nickNameBytes);
+            string id = idBytes.ChangeToString();
+            string password = passwordBytes.ChangeToString();
+            string nickName = nickNameBytes.ChangeToString();
 
 
             bool bCreateUser = DatabaseHandler.CreateUser(id, password, nickName);
             if (bCreateUser)
             {
-                byte[] buf = PackPacket(PacketData.EPacketType.UserCreateSuccess, nickNameBytes);
+                byte[] buf = PackPacket(PacketData.EPacketType.UserCreateSuccess, idBytes, nickNameBytes);
                 ServerHandler.SendToClientList(buf);
             }
             else

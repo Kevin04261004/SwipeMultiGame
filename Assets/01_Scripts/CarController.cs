@@ -4,8 +4,8 @@ using UnityEngine;
 public class CarController : MonoBehaviour
 {
     [ReadOnly(false)][SerializeField] private float speed = 0;
-    [SerializeField] private LineRenderer lineRenderer;
-    [SerializeField] private GameObject flag;
+    private LineRenderer lineRenderer;
+    private GameObject flag;
     private static readonly float STOP_SPEED = 0.002f;
     private static readonly float SPEED_LOSE = 0.96f;
     
@@ -17,6 +17,7 @@ public class CarController : MonoBehaviour
 
     private NetworkManager networkManager;
     private GameDirector gameDirector;
+    private PlayerData playerData = null;
     private void Awake()
     {
         /* Initialize */
@@ -27,14 +28,26 @@ public class CarController : MonoBehaviour
         gameDirector = FindObjectOfType<GameDirector>();
         Debug.Assert(gameDirector != null);
         TryGetComponent(out audioSource);
+        lineRenderer = FindObjectOfType<LineRenderer>();
+        flag = GameObject.Find("flag");
 
         /* set params */
         cameraOffset = _cam.transform.position;
     }
 
+    /* For Debugging */
+    [ContextMenu("PrintCarInfo")]
+    private void PrintCarInfo()
+    {
+        Debug.Log($"GameType: {gameDirector.gameType}");
+        Debug.Log($"HostID: {networkManager.hostId}");
+        Debug.Log($"PlayerID: {playerData.id}");
+        Debug.Log($"IsSame = {playerData.id == networkManager.hostId}");
+    }
+    
     private void Update()
     {
-        if (gameDirector.gameType != GameDirector.EGameType.InGame)
+        if (playerData == null || playerData.id != networkManager.hostId || gameDirector.gameType != GameDirector.EGameType.InGame)
         {
             return;
         }
@@ -87,9 +100,13 @@ public class CarController : MonoBehaviour
         float length = flag.transform.position.x - transform.position.x;
         if (length >= 0 && networkManager.networkFlag == 1)
         {
-            // networkManager.SendLengthToServer(length);
             gameDirector.gameType = GameDirector.EGameType.GameEnd;
         }
+    }
+
+    public void SetPlayerData(PlayerData pd)
+    {
+        this.playerData = pd;
     }
     
 }

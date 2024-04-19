@@ -22,13 +22,11 @@ namespace UDPGameServer
             }
             SetAllHandlers();
         }
-
         // Set
         public static void SetHandler(PacketData.EPacketType packetType, PacketHandlerEvent handler)
         {
             packetHandlerEvents[packetType] = handler;
         }
-
         public static void ProcessPacket(IPEndPoint endPoint, byte[] packetBuffer, int packetSize)
         {
             byte[] data = new byte[packetSize - sizeof(int) - sizeof(PacketData.EPacketType)];
@@ -45,7 +43,6 @@ namespace UDPGameServer
                 Console.WriteLine($"No handler set for packet type: {packetType}");
             }
         }
-
         public static byte[] PackPacket(PacketData.EPacketType packetType)
         {
             // Byte Size (int - 4byte)
