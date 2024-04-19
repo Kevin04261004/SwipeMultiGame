@@ -31,6 +31,7 @@ namespace UDPGameServer
             Console.WriteLine($"[{endPoint}] Client가 게임을 종료하였습니다.");
 
             ServerHandler.connectedClients.Remove(endPoint);
+            ClientExitInGame(endPoint);
         }
         private static void UserLoginRequired(IPEndPoint endPoint, byte[] data)
         {
@@ -60,18 +61,20 @@ namespace UDPGameServer
                 if(string.IsNullOrEmpty(nickName))
                 {
                     buf = PackPacket(PacketData.EPacketType.UserLoginFail);
-                    ServerHandler.SendToClientList(buf);
+                    ServerHandler.SendToClient(endPoint, buf);
                     Console.WriteLine($"[{endPoint}] User Login FAIL ({id}, {password})");
                     return;
                 }
                 buf = PackPacket(PacketData.EPacketType.UserLoginSuccess, idBytes, nickName.ChangeToByte());
-                ServerHandler.SendToClientList(buf);
+                /* inGameClientList에 추가. */
+                ClientEnterInGame(endPoint, id, nickName);
+                ServerHandler.SendToClient(endPoint, buf);
                 Console.WriteLine($"[{endPoint}] User Login SUCCESS ({id}, {password})");
             }
             else
             {
                 buf = PackPacket(PacketData.EPacketType.UserLoginFail);
-                ServerHandler.SendToClientList(buf);
+                ServerHandler.SendToClient(endPoint, buf);
                 Console.WriteLine($"[{endPoint}] User Login FAIL ({id}, {password})");
             }
         }
@@ -99,13 +102,13 @@ namespace UDPGameServer
             if (bHasUserData)
             {
                 byte[] buf = PackPacket(PacketData.EPacketType.CantCreateUserData);
-                ServerHandler.SendToClientList(buf);
+                ServerHandler.SendToClient(endPoint, buf);
                 Console.WriteLine($"[{endPoint}] User Did not Allowed ({id})");
             }
             else
             {
                 byte[] buf = PackPacket(PacketData.EPacketType.AllowCreateUserData);
-                ServerHandler.SendToClientList(buf);
+                ServerHandler.SendToClient(endPoint, buf);
                 Console.WriteLine($"[{endPoint}] Create new User Allowed ({id})");
             }
         }
@@ -139,13 +142,28 @@ namespace UDPGameServer
             if (bCreateUser)
             {
                 byte[] buf = PackPacket(PacketData.EPacketType.UserCreateSuccess, idBytes, nickNameBytes);
-                ServerHandler.SendToClientList(buf);
+                /* inGameClientList에 추가 */
+                ClientEnterInGame(endPoint, id, nickName);
+                ServerHandler.SendToClient(endPoint, buf);
             }
             else
             {
                 byte[] buf = PackPacket(PacketData.EPacketType.UserCreateFail);
-                ServerHandler.SendToClientList(buf);
+                ServerHandler.SendToClient(endPoint, buf);
             }
+        }
+        private static void ClientEnterInGame(IPEndPoint endPoint, string id, string nickName)
+        {
+            PlayerData data = new PlayerData()
+            {
+                id = id,
+                nickName = nickName
+            };
+            ServerHandler.inGameClients.Add(endPoint, data);
+        }
+        private static void ClientExitInGame(IPEndPoint endPoint)
+        {
+            ServerHandler.inGameClients.Remove(endPoint);
         }
     }
 }

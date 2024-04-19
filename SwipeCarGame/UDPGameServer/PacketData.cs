@@ -13,6 +13,7 @@ public static class PacketData
         CantCreateUserData, // 유저 데이터를 생성하지 못하게 할 때 (== 이미 존재할 때)
         UserCreateSuccess, // 유저(계정)를 생성에 성공하였을 때
         UserCreateFail, // 유저(계정)를 생성에 실패'하였을 때
+        newUserCraeted, // 새로운 유저가 접속했음을 클라이언트에게 알림.
 
         /* ClientToServer */
         RequireUserLogin = 1000, // 16byte + 16byte 총 32byte를 보낸다.
