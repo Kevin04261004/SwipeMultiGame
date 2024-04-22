@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class CarController : MonoBehaviour
@@ -14,7 +15,10 @@ public class CarController : MonoBehaviour
     private Camera _cam;
     private AudioSource audioSource;
     private Vector3 cameraOffset;
-
+    
+    private Vector2 targetPos;
+    private Vector2 velocity;
+    
     private NetworkManager networkManager;
     private GameDirector gameDirector;
     private SwipeGame_PlayerData swipeGamePlayerData = null;
@@ -57,13 +61,12 @@ public class CarController : MonoBehaviour
         Debug.Log($"HostID: {networkManager.hostId}");
         Debug.Log($"PlayerID: {swipeGamePlayerData.id}");
         Debug.Log($"NickName: {swipeGamePlayerData.nickName}");
-        Debug.Log($"IsSame = {swipeGamePlayerData.id == networkManager.hostId}");
+        Debug.Log($"IsHost = {swipeGamePlayerData.id == networkManager.hostId}");
     }
     
     private void Update()
     {
-        MoveCar();
-        if (swipeGamePlayerData == null || swipeGamePlayerData.id != networkManager.hostId || gameDirector.gameType != GameDirector.EGameType.InGame || networkManager.networkFlag == 1)
+        if (swipeGamePlayerData == null || swipeGamePlayerData.id != networkManager.hostId || gameDirector.gameType != GameDirector.EGameType.InGame)
         {
             return;
         }
@@ -98,28 +101,25 @@ public class CarController : MonoBehaviour
             /* Audio */
             audioSource.Play();
             
-            /* NetWork */
-            this.networkManager.networkFlag = 1;
-        }
-    }
-
-    private void MoveCar()
-    {
-        transform.Translate(this.speed, 0,0);
-        speed *= SPEED_LOSE;
-        if (this.speed < STOP_SPEED && this.speed > -STOP_SPEED)
-        {
-            CarStoped();
+            /* Network */
+            inGameHandler.SendCarMove(startPos, lastPos);
         }
     }
     
-    private void CarStoped()
+    public void Move(float magnitude)
     {
-        speed = 0;
-        float length = flag.transform.position.x - transform.position.x;
-        if (length >= 0 && networkManager.networkFlag == 1)
+        targetPos = (Vector2)transform.position + new Vector2(magnitude, 0);
+        StartCoroutine(MoveCoroutine());
+    }
+
+    private IEnumerator MoveCoroutine()
+    {
+        float smoothTime = 1f; // 부드러운 이동을 위한 시간
+        while (Vector2.Distance(transform.position, targetPos) > STOP_SPEED)
         {
-            gameDirector.gameType = GameDirector.EGameType.GameEnd;
+            // SmoothDamp를 사용하여 부드럽게 이동합니다.
+            transform.position = Vector2.SmoothDamp(transform.position, targetPos, ref velocity, smoothTime);
+            yield return null;
         }
     }
 

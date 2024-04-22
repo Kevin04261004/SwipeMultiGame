@@ -25,6 +25,7 @@ public class InGameHandler : MonoBehaviour
         PacketHandler.SetHandler(PacketData.EPacketType.UserEnterInGame, OtherUserEnterInGame);
         PacketHandler.SetHandler(PacketData.EPacketType.UserExitInGame, OtherUserExitInGame);
         PacketHandler.SetHandler(PacketData.EPacketType.LoadOtherClient, LoadOtherClients);
+        PacketHandler.SetHandler(PacketData.EPacketType.CarMove, CarMoveReceived);
     }
 
     public void StartGame(byte[] data)
@@ -67,11 +68,6 @@ public class InGameHandler : MonoBehaviour
         
         return car;
     }
-    public void SetUserScore()
-    {
-        
-    }
-
     private void OtherUserEnterInGame(byte[] data) // playerData
     {
         SwipeGame_PlayerData pd = data.ChangeToPlayerData();
@@ -113,5 +109,37 @@ public class InGameHandler : MonoBehaviour
             SwipeGame_PlayerData pd = playerDataBytes.ChangeToPlayerData();
             MainThreadWorker.Instance.EnqueueJob(()=>CreateNewPlayer(pd));
         }
+    }
+
+    // 서버에게 유저 인풋(시작과 끝)을 보낸다.
+    public void SendCarMove(Vector2 startPos, Vector2 endPos)
+    {
+        byte[] startByte = BitConverter.GetBytes(startPos.x);
+        byte[] endByte = BitConverter.GetBytes(endPos.x);
+        byte[] packetData = PacketHandler.PackPacket(PacketData.EPacketType.RequestCarMove,startByte, endByte);
+        networkManager.SendToServer(packetData);
+    }
+
+    private void CarMoveReceived(byte[] data) // magnitude, id(string)
+    {
+        float magnitude = BitConverter.ToSingle(data, 0);
+        byte[] idBytes = new byte[16];
+        Array.Copy(data, sizeof(float), idBytes, 0, 16);
+        string id = idBytes.ChangeToString();
+
+        foreach (var playerPair in playerDictionary)
+        {
+            if (playerPair.Value.id != id)
+            {
+                continue;
+            }
+            MainThreadWorker.Instance.EnqueueJob(()=>playerPair.Key.GetComponent<CarController>().Move(magnitude));
+        }
+    }
+
+    private void RequireReTry()
+    {
+        // byte[] loginPacket = PacketHandler.PackPacket(PacketData.EPacketType.RequireCreateUser, IdBytes, PasswordBytes);
+        // networkManager.SendToServer(loginPacket);
     }
 }

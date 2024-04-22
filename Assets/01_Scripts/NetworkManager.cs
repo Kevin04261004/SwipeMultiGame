@@ -7,7 +7,6 @@ using System.Threading;
 public class NetworkManager : MonoBehaviour
 {
     public static readonly int PORT_NUM = 10200;
-    public int networkFlag { get; set; } = 0;
     private Socket clientSocket;
     private EndPoint serverEndPoint;
     private Thread receiveThread;
