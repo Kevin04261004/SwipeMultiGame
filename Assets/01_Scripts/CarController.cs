@@ -7,6 +7,7 @@ public class CarController : MonoBehaviour
     [ReadOnly(false)][SerializeField] private float speed = 0;
     private LineRenderer lineRenderer;
     private GameObject flag;
+    private Transform SpawnTransform;
     private static readonly float STOP_SPEED = 0.002f;
     private static readonly float SPEED_LOSE = 0.96f;
     
@@ -23,6 +24,7 @@ public class CarController : MonoBehaviour
     private GameDirector gameDirector;
     private SwipeGame_PlayerData swipeGamePlayerData = null;
     private InGameHandler inGameHandler;
+    private bool hasSwipe = false;
     private void Awake()
     {
         /* Initialize */
@@ -40,11 +42,12 @@ public class CarController : MonoBehaviour
         {
             Debug.Assert(false);    
         }
-        
-
 
         flag = GameObject.Find("flag");
         Debug.Assert(flag != null);
+        SpawnTransform = GameObject.Find("SpawnPos").transform;
+        Debug.Assert(SpawnTransform != null);
+
     }
 
     private void Start()
@@ -63,13 +66,19 @@ public class CarController : MonoBehaviour
         Debug.Log($"NickName: {swipeGamePlayerData.nickName}");
         Debug.Log($"IsHost = {swipeGamePlayerData.id == networkManager.hostId}");
     }
+
+    public bool IsHost()
+    {
+        return swipeGamePlayerData.id == networkManager.hostId;
+    }
     
     private void Update()
     {
-        if (swipeGamePlayerData == null || swipeGamePlayerData.id != networkManager.hostId || gameDirector.gameType != GameDirector.EGameType.InGame)
+        if (swipeGamePlayerData == null || swipeGamePlayerData.id != networkManager.hostId || gameDirector.gameType != GameDirector.EGameType.InGame || hasSwipe)
         {
             return;
         }
+        print("UPDATE");
         if (Input.GetMouseButtonDown(0))
         {
             startPos = Input.mousePosition;
@@ -97,17 +106,17 @@ public class CarController : MonoBehaviour
             
             /* UI or Other */
             lineRenderer.enabled = false;
-            
-            /* Audio */
-            audioSource.Play();
-            
+
             /* Network */
             inGameHandler.SendCarMove(startPos, lastPos);
+            hasSwipe = true;
         }
     }
     
     public void Move(float magnitude)
     {
+        /* Audio */
+        audioSource.Play();
         targetPos = (Vector2)transform.position + new Vector2(magnitude, 0);
         StartCoroutine(MoveCoroutine());
     }
@@ -121,11 +130,21 @@ public class CarController : MonoBehaviour
             transform.position = Vector2.SmoothDamp(transform.position, targetPos, ref velocity, smoothTime);
             yield return null;
         }
+
+        if (IsHost())
+        {
+            gameDirector.gameType = GameDirector.EGameType.GameEnd;
+        }
+        inGameHandler.retryButton.SetActive(true);
     }
 
+    public void RetryGame()
+    {
+        hasSwipe = false;
+        transform.position = SpawnTransform.position;
+    }
     public void SetPlayerData(SwipeGame_PlayerData pd)
     {
         this.swipeGamePlayerData = pd;
     }
-    
 }

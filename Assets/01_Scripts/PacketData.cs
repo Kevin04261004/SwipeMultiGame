@@ -18,6 +18,7 @@ public static class PacketData
         UserExitInGame, // 유저가 인게임에서 나갔음을 클라이언트에게 알림.
         LoadOtherClient, // 유저가 인게임에 접속했을 때, 이미 접속해있는 다른 클라이언트들의 정보를 보냄.
         CarMove, // 자동차가 이동할 magnitude를 보낸다.
+        ReTryGame, // 자동차가 다시 경주할 수 있도록 한다.
         
         /* ClientToServer */
         RequireUserLogin = 1000, // 16byte + 16byte 총 32byte를 보낸다.

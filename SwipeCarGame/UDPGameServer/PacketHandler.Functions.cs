@@ -19,6 +19,7 @@ namespace UDPGameServer
             SetHandler(PacketData.EPacketType.RequireCreateUser, CreateUserRequired);
             SetHandler(PacketData.EPacketType.CreateUser, CreateUser);
             SetHandler(PacketData.EPacketType.RequestCarMove, CalculateCarMove);
+            SetHandler(PacketData.EPacketType.RequireReTryGame, SendReTryGameToInGameClients);
         }
 
         private static void ClientConnected(IPEndPoint endPoint, byte[] data = null)
@@ -222,8 +223,16 @@ namespace UDPGameServer
             Arrays.Fill(idBytes, 0);
             idBytes = id.ChangeToByte();
 
-            byte[] packetBytes = PacketHandler.PackPacket(PacketData.EPacketType.CarMove, magnitudeBytes, idBytes);
+            byte[] packetBytes = PackPacket(PacketData.EPacketType.CarMove, magnitudeBytes, idBytes);
             ServerHandler.SendToInGameClientList(packetBytes);
+        }
+        private static void SendReTryGameToInGameClients(IPEndPoint endPoint, byte[] datas = null)
+        {
+            byte[] idBytes = new byte[SwipeGame_PlayerData.ID_SIZE];
+            Arrays.Fill(idBytes, 0);
+            idBytes = ServerHandler.inGameClients[endPoint].id.ChangeToByte();
+            byte[] packetBytes = PackPacket(PacketData.EPacketType.ReTryGame, idBytes);
+            ServerHandler.SendToClientList(packetBytes);
         }
     }
 }

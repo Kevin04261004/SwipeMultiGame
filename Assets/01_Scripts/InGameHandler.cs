@@ -10,6 +10,7 @@ public class InGameHandler : MonoBehaviour
     [SerializeField] private Transform spawnPos;
     [SerializeField] private GameObject car_prefab;
     [SerializeField] private GameObject loginPanel;
+    [field: SerializeField] public GameObject retryButton { get; private set; }
 
     private Dictionary<GameObject, SwipeGame_PlayerData>
         playerDictionary = new Dictionary<GameObject, SwipeGame_PlayerData>();
@@ -26,6 +27,7 @@ public class InGameHandler : MonoBehaviour
         PacketHandler.SetHandler(PacketData.EPacketType.UserExitInGame, OtherUserExitInGame);
         PacketHandler.SetHandler(PacketData.EPacketType.LoadOtherClient, LoadOtherClients);
         PacketHandler.SetHandler(PacketData.EPacketType.CarMove, CarMoveReceived);
+        PacketHandler.SetHandler(PacketData.EPacketType.ReTryGame, ReTryGame);
     }
 
     public void StartGame(byte[] data)
@@ -137,9 +139,32 @@ public class InGameHandler : MonoBehaviour
         }
     }
 
-    private void RequireReTry()
+    public void RequireReTry()
     {
-        // byte[] loginPacket = PacketHandler.PackPacket(PacketData.EPacketType.RequireCreateUser, IdBytes, PasswordBytes);
-        // networkManager.SendToServer(loginPacket);
+        retryButton.SetActive(false);
+        byte[] packetData = PacketHandler.PackPacket(PacketData.EPacketType.RequireReTryGame);
+        networkManager.SendToServer(packetData);
+    }
+
+    private void ReTryGame(byte[] data)
+    {
+        string id = data.ChangeToString();
+        foreach (var playerPair in playerDictionary)
+        {
+            if (playerPair.Value.id != id)
+            {
+                continue;
+            }
+
+            MainThreadWorker.Instance.EnqueueJob(()=>
+            {
+                CarController carController = playerPair.Key.GetComponent<CarController>();
+                carController.RetryGame();
+                if (carController.IsHost())
+                {
+                    gameDirector.gameType = GameDirector.EGameType.InGame;
+                }
+            });
+        }
     }
 }
