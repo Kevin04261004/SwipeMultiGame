@@ -57,8 +57,9 @@ namespace UDPGameServer
             byte[] buf;
             if (bHasUserData)
             {
-                DatabaseHandler.GetUserNickName(id, password, out string nickName);
-                if(string.IsNullOrEmpty(nickName))
+                DatabaseHandler.GetUserNickName(id, out string nickName);
+                SwipeGame_PlayerData pd = DatabaseHandler.GetPlayerDataOrNull(id);
+                if(string.IsNullOrEmpty(nickName) || pd == null)
                 {
                     buf = PackPacket(PacketData.EPacketType.UserLoginFail);
                     ServerHandler.SendToClient(endPoint, buf);
@@ -67,9 +68,11 @@ namespace UDPGameServer
                 }
                 buf = PackPacket(PacketData.EPacketType.UserLoginSuccess, idBytes, nickName.ChangeToByte());
                 /* inGameClientList에 추가. */
-                ClientEnterInGame(endPoint, id, nickName);
+                ClientEnterInGame(endPoint, pd);
                 ServerHandler.SendToClient(endPoint, buf);
                 Console.WriteLine($"[{endPoint}] User Login SUCCESS ({id}, {password})");
+
+                LoadOtherClients(endPoint);
             }
             else
             {
@@ -96,7 +99,6 @@ namespace UDPGameServer
             Array.Copy(data, offset, passwordBytes, 0, SwipeGame_User.PASSWORD_SIZE);
 
             string id = idBytes.ChangeToString();
-            string password = passwordBytes.ChangeToString();
 
             bool bHasUserData = DatabaseHandler.TryCheckUserID(id);
             if (bHasUserData)
@@ -114,14 +116,14 @@ namespace UDPGameServer
         }
         private static void CreateUser(IPEndPoint endPoint, byte[] data)
         {
-            if (data.Length != (SwipeGame_User.ID_SIZE + SwipeGame_User.PASSWORD_SIZE + SwipeGame_User.NICKNAME_SIZE))
+            if (data.Length != (SwipeGame_User.ID_SIZE + SwipeGame_User.PASSWORD_SIZE + SwipeGame_PlayerData.NICKNAME_SIZE))
             {
                 return;
             }
 
             byte[] idBytes = new byte[SwipeGame_User.ID_SIZE];
             byte[] passwordBytes = new byte[SwipeGame_User.PASSWORD_SIZE];
-            byte[] nickNameBytes = new byte[SwipeGame_User.NICKNAME_SIZE];
+            byte[] nickNameBytes = new byte[SwipeGame_PlayerData.NICKNAME_SIZE];
             Arrays.Fill(idBytes, 0);
             Arrays.Fill(passwordBytes, 0);
             Arrays.Fill(nickNameBytes, 0);
@@ -131,20 +133,22 @@ namespace UDPGameServer
             offset += SwipeGame_User.ID_SIZE;
             Array.Copy(data, offset, passwordBytes, 0, SwipeGame_User.PASSWORD_SIZE);
             offset += SwipeGame_User.PASSWORD_SIZE;
-            Array.Copy(data, offset, nickNameBytes, 0, SwipeGame_User.NICKNAME_SIZE);
+            Array.Copy(data, offset, nickNameBytes, 0, SwipeGame_PlayerData.NICKNAME_SIZE);
 
             string id = idBytes.ChangeToString();
             string password = passwordBytes.ChangeToString();
             string nickName = nickNameBytes.ChangeToString();
 
 
-            bool bCreateUser = DatabaseHandler.CreateUser(id, password, nickName);
+            bool bCreateUser = DatabaseHandler.CreateUser(id, password, nickName, out SwipeGame_PlayerData pd);
             if (bCreateUser)
             {
                 byte[] buf = PackPacket(PacketData.EPacketType.UserCreateSuccess, idBytes, nickNameBytes);
                 /* inGameClientList에 추가 */
-                ClientEnterInGame(endPoint, id, nickName);
+                ClientEnterInGame(endPoint, pd);
                 ServerHandler.SendToClient(endPoint, buf);
+                
+                LoadOtherClients(endPoint);
             }
             else
             {
@@ -152,18 +156,51 @@ namespace UDPGameServer
                 ServerHandler.SendToClient(endPoint, buf);
             }
         }
-        private static void ClientEnterInGame(IPEndPoint endPoint, string id, string nickName)
+        private static void ClientEnterInGame(IPEndPoint endPoint, SwipeGame_PlayerData pd)
         {
-            PlayerData data = new PlayerData()
-            {
-                id = id,
-                nickName = nickName
-            };
-            ServerHandler.inGameClients.Add(endPoint, data);
+            ServerHandler.inGameClients.Add(endPoint, pd);
+            SendClientEnterToOthers(endPoint, pd);
         }
         private static void ClientExitInGame(IPEndPoint endPoint)
         {
+            if(!ServerHandler.inGameClients.ContainsKey(endPoint))
+            {
+                return;
+            }
+            string id = ServerHandler.inGameClients[endPoint].id;
             ServerHandler.inGameClients.Remove(endPoint);
+            SendClientExitToOthers(endPoint, id);
+        }
+        private static void LoadOtherClients(IPEndPoint endPoint)
+        {
+            int size = SwipeGame_PlayerData.GetByteSize();
+            byte[] data = new byte[(ServerHandler.inGameClients.Count - 1) * size];
+            int offset = 0;
+
+            foreach(var client in ServerHandler.inGameClients)
+            {
+                if(client.Key == endPoint)
+                {
+                    continue;
+                }
+                Array.Copy(client.Value.ChangeToBytes(), 0, data, offset, size);
+                offset += size;
+            }
+
+            byte[] packetData = PackPacket(PacketData.EPacketType.LoadOtherClient, data);
+            ServerHandler.SendToClient(endPoint, packetData);
+        }
+        private static void SendClientEnterToOthers(IPEndPoint excludeEndPoint, SwipeGame_PlayerData pd)
+        {
+            byte[] data = pd.ChangeToBytes();
+            byte[] packetData = PackPacket(PacketData.EPacketType.UserEnterInGame, data);
+            ServerHandler.SendToInGameClientListExcludeEndPoint(packetData, excludeEndPoint);
+        }
+        private static void SendClientExitToOthers(IPEndPoint excludeEndPoint, string id)
+        {
+            byte[] idBytes = id.ChangeToByte();
+            byte[] packetData = PackPacket(PacketData.EPacketType.UserExitInGame, idBytes);
+            ServerHandler.SendToInGameClientListExcludeEndPoint(packetData, excludeEndPoint);
         }
     }
 }

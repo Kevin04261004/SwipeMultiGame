@@ -80,13 +80,84 @@ namespace UDPGameServer
                 }
             }
         }
-        public static bool GetUserNickName(string id, string password, out string nickName)
+        /* mySQL중 playerData테이블에 아이디가 존재한다면 true를 리턴하는 함수 */
+        public static bool TryCheckPlayerDataID(string id)
         {
             Debug.Assert(connection != null);
             try
             {
                 connection.Open();
-                string sql = $"SELECT nickName FROM user WHERE id = \'{id}\' AND password = \'{password}\'";
+                string sql = $"SELECT COUNT(*) FROM playerData WHERE id = \'{id}\'";
+                MySqlCommand cmd = new MySqlCommand(sql, connection);
+
+                int count = Convert.ToInt32(cmd.ExecuteScalar());
+
+                connection.Close();
+
+                return count > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return false;
+            }
+            finally
+            {
+                if (connection != null)
+                {
+                    connection.Close();
+                }
+            }
+        }
+        public static SwipeGame_PlayerData GetPlayerDataOrNull(string id)
+        {
+            SwipeGame_PlayerData playerData = null;
+
+            Debug.Assert(connection != null);
+            try
+            {
+                connection.Open();
+
+                string sql = $"SELECT * FROM playerData WHERE id = '{id}'";
+                MySqlCommand cmd = new MySqlCommand(sql, connection);
+
+                using (MySqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        playerData = new SwipeGame_PlayerData()
+                        {
+                            id = reader.GetString("id"),
+                            nickName = reader.GetString("nickName"),
+                            level = reader.GetInt32("level"),
+                            highScore = reader.GetFloat("highScore"),
+                            lastConnectTime = reader.GetFloat("lastConnectTime")
+                        };
+                    }
+                }
+
+                return playerData;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return playerData;
+            }
+            finally
+            {
+                if (connection != null)
+                {
+                    connection.Close();
+                }
+            }
+        }
+        public static bool GetUserNickName(string id, out string nickName)
+        {
+            Debug.Assert(connection != null);
+            try
+            {
+                connection.Open();
+                string sql = $"SELECT nickName FROM playerData WHERE id = \'{id}\'";
                 MySqlCommand cmd = new MySqlCommand(sql, connection);
 
                 object result = cmd.ExecuteScalar();
@@ -115,15 +186,50 @@ return_fail:
             nickName = null;
             return false;
         }
-        public static bool CreateUser(string id, string password, string nickName)
+        public static bool CreateUser(string id, string password, string nickName, out SwipeGame_PlayerData playerDataOrNull)
         {
-            Debug.Assert(connection != null);
             try
             {
                 if (!TryCheckUserID(id))
                 {
-                    SwipeGame_User newUser = new SwipeGame_User(id, password, nickName);
+                    SwipeGame_User newUser = new SwipeGame_User(id, password);
                     InsertData(newUser);
+                    SwipeGame_PlayerData newPlayerData = new SwipeGame_PlayerData()
+                    {
+                        id = id,
+                        nickName = nickName,
+                        level = 1,
+                        highScore = -1,
+                        lastConnectTime = -1,
+                    };
+                    CreatePlayerData(newPlayerData);
+                    playerDataOrNull = newPlayerData;
+                    return true;
+                }
+                else
+                {
+                    playerDataOrNull = null;
+                    goto return_fail;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                goto return_fail;
+            }
+return_fail:
+            playerDataOrNull = null;
+            return false;
+        }
+        private static bool CreatePlayerData(SwipeGame_PlayerData playerData)
+        {
+            Debug.Assert(connection != null);
+            Debug.Assert(playerData != null);
+            try
+            {
+                if (!TryCheckPlayerDataID(playerData.id))
+                {
+                    InsertData(playerData);
                     return true;
                 }
                 else

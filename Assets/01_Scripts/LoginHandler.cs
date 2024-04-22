@@ -37,8 +37,8 @@ public class LoginHandler : MonoBehaviour
         PacketHandler.SetHandler(PacketData.EPacketType.UserLoginFail, LoginFail);
         PacketHandler.SetHandler(PacketData.EPacketType.AllowCreateUserData, CreateUserDataAllowed);
         PacketHandler.SetHandler(PacketData.EPacketType.CantCreateUserData, CreateUserDataNonAllowed);
-        PacketHandler.SetHandler(PacketData.EPacketType.UserCreateFail, UserCreateSuccess);
-        PacketHandler.SetHandler(PacketData.EPacketType.UserCreateSuccess, UserCreateFail);
+        PacketHandler.SetHandler(PacketData.EPacketType.UserCreateFail, UserCreateFail);
+        PacketHandler.SetHandler(PacketData.EPacketType.UserCreateSuccess, UserCreateSuccess);
     }
 
     public void TryLogin()
@@ -57,7 +57,6 @@ public class LoginHandler : MonoBehaviour
         // 16 + 16 byte의 id와 password byte를 만들고
         byte[] IdBytes = new byte[16];
         byte[] PasswordBytes = new byte[16];
-        print($"idByte:{IdBytes.Length}, PasswordByte:{PasswordBytes.Length}");
 
         // 인코딩을 통해 byte로 변환
         IdBytes = id.text.PadRight(16, '\0').ChangeToByte();
@@ -66,7 +65,6 @@ public class LoginHandler : MonoBehaviour
         // id와 password의 바이트 배열을 16바이트로 자릅니다.
         Array.Resize(ref IdBytes, 16);
         Array.Resize(ref PasswordBytes, 16);
-        print($"idByte:{IdBytes.Length}, PasswordByte:{PasswordBytes.Length}");
         
         // 패킷으로 패킹해준다.
         byte[] loginPacket = PacketHandler.PackPacket(PacketData.EPacketType.RequireUserLogin, IdBytes, PasswordBytes);

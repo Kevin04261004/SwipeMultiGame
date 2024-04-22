@@ -10,7 +10,9 @@ public class InGameHandler : MonoBehaviour
     [SerializeField] private Transform spawnPos;
     [SerializeField] private GameObject car_prefab;
     [SerializeField] private GameObject loginPanel;
-    private List<PlayerData> playerList;
+
+    private Dictionary<GameObject, SwipeGame_PlayerData>
+        playerDictionary = new Dictionary<GameObject, SwipeGame_PlayerData>();
     private NetworkManager networkManager;
     private GameDirector gameDirector;
     private void Awake()
@@ -19,6 +21,10 @@ public class InGameHandler : MonoBehaviour
         Debug.Assert(networkManager);
         gameDirector = FindObjectOfType<GameDirector>();
         Debug.Assert(gameDirector);
+        
+        PacketHandler.SetHandler(PacketData.EPacketType.UserEnterInGame, OtherUserEnterInGame);
+        PacketHandler.SetHandler(PacketData.EPacketType.UserExitInGame, OtherUserExitInGame);
+        PacketHandler.SetHandler(PacketData.EPacketType.LoadOtherClient, LoadOtherClients);
     }
 
     public void StartGame(byte[] data)
@@ -39,7 +45,7 @@ public class InGameHandler : MonoBehaviour
         networkManager.hostId = id;
         
         // 플레이어 데이터 초기화
-        PlayerData pd = new PlayerData
+        SwipeGame_PlayerData pd = new SwipeGame_PlayerData
         {
             id = id,
             nickName = nickName
@@ -51,17 +57,61 @@ public class InGameHandler : MonoBehaviour
         gameDirector.car = hostCar;
         gameDirector.gameType = GameDirector.EGameType.InGame;
     }
-
-    private GameObject CreateNewPlayer(PlayerData pd)
+    private GameObject CreateNewPlayer(SwipeGame_PlayerData pd)
     {
         // 자동차 생성 및 playerData(id) 초기화 진행
         GameObject car = Instantiate(car_prefab, spawnPos);
         car.GetComponent<CarController>().SetPlayerData(pd);
+        
+        playerDictionary.Add(car, pd);
+        
         return car;
     }
-    
     public void SetUserScore()
     {
         
+    }
+
+    private void OtherUserEnterInGame(byte[] data) // playerData
+    {
+        SwipeGame_PlayerData pd = data.ChangeToPlayerData();
+
+        MainThreadWorker.Instance.EnqueueJob(()=>CreateNewPlayer(pd));
+    }
+
+    private void OtherUserExitInGame(byte[] data) // id
+    {
+        string id = data.ChangeToString();
+        Debug.Log($"ID: {id}님이 접속을 종료하였습니다.");
+        foreach (var player in playerDictionary)
+        {
+            if (player.Value.id != id)
+            {
+                continue;
+            }
+            
+            GameObject destroyObj = player.Key.gameObject;
+            playerDictionary.Remove(player.Key);
+            MainThreadWorker.Instance.EnqueueJob(()=>Destroy(destroyObj));
+        }
+    }
+    
+    private void LoadOtherClients(byte[] data) // PlayerData[]
+    {
+        int size = SwipeGame_PlayerData.GetByteSize();
+        if (data.Length % size != 0)
+        {
+            return;
+        }
+        
+        int count = data.Length / size;
+        for (int i = 0; i < count; ++i)
+        {
+            int offset = i * size;
+            byte[] playerDataBytes = new byte[size];
+            Array.Copy(data, offset, playerDataBytes, 0, size);
+            SwipeGame_PlayerData pd = playerDataBytes.ChangeToPlayerData();
+            MainThreadWorker.Instance.EnqueueJob(()=>CreateNewPlayer(pd));
+        }
     }
 }

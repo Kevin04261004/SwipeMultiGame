@@ -9,7 +9,7 @@ namespace UDPGameServer
     {
         // 추후 잡 타이머 방식을 통해 리스트에 존재하는 모든 클라이언트들이 튕기지는 않았는지? 접속이 이상한지는 않은지 확인해보기.
         public static List<IPEndPoint> connectedClients = new List<IPEndPoint>();
-        public static Dictionary<IPEndPoint, PlayerData> inGameClients = new Dictionary<IPEndPoint, PlayerData>();
+        public static Dictionary<IPEndPoint, SwipeGame_PlayerData> inGameClients = new Dictionary<IPEndPoint, SwipeGame_PlayerData>();
         public static Socket serverSocket;
         public static void SendToClientList(byte[] bytes)
         {

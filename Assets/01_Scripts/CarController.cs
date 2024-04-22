@@ -17,20 +17,34 @@ public class CarController : MonoBehaviour
 
     private NetworkManager networkManager;
     private GameDirector gameDirector;
-    private PlayerData playerData = null;
+    private SwipeGame_PlayerData swipeGamePlayerData = null;
+    private InGameHandler inGameHandler;
     private void Awake()
     {
         /* Initialize */
         _cam = Camera.main;
         Debug.Assert(_cam != null);
         networkManager = FindObjectOfType<NetworkManager>();
-            Debug.Assert(networkManager != null);
+        Debug.Assert(networkManager != null);
         gameDirector = FindObjectOfType<GameDirector>();
         Debug.Assert(gameDirector != null);
-        TryGetComponent(out audioSource);
         lineRenderer = FindObjectOfType<LineRenderer>();
-        flag = GameObject.Find("flag");
+        Debug.Assert(lineRenderer != null);
+        inGameHandler = FindObjectOfType<InGameHandler>();
+        Debug.Assert(inGameHandler != null);
+        if(!TryGetComponent(out audioSource))
+        {
+            Debug.Assert(false);    
+        }
+        
 
+
+        flag = GameObject.Find("flag");
+        Debug.Assert(flag != null);
+    }
+
+    private void Start()
+    {
         /* set params */
         cameraOffset = _cam.transform.position;
     }
@@ -41,13 +55,15 @@ public class CarController : MonoBehaviour
     {
         Debug.Log($"GameType: {gameDirector.gameType}");
         Debug.Log($"HostID: {networkManager.hostId}");
-        Debug.Log($"PlayerID: {playerData.id}");
-        Debug.Log($"IsSame = {playerData.id == networkManager.hostId}");
+        Debug.Log($"PlayerID: {swipeGamePlayerData.id}");
+        Debug.Log($"NickName: {swipeGamePlayerData.nickName}");
+        Debug.Log($"IsSame = {swipeGamePlayerData.id == networkManager.hostId}");
     }
     
     private void Update()
     {
-        if (playerData == null || playerData.id != networkManager.hostId || gameDirector.gameType != GameDirector.EGameType.InGame)
+        MoveCar();
+        if (swipeGamePlayerData == null || swipeGamePlayerData.id != networkManager.hostId || gameDirector.gameType != GameDirector.EGameType.InGame || networkManager.networkFlag == 1)
         {
             return;
         }
@@ -85,7 +101,10 @@ public class CarController : MonoBehaviour
             /* NetWork */
             this.networkManager.networkFlag = 1;
         }
-        
+    }
+
+    private void MoveCar()
+    {
         transform.Translate(this.speed, 0,0);
         speed *= SPEED_LOSE;
         if (this.speed < STOP_SPEED && this.speed > -STOP_SPEED)
@@ -93,7 +112,7 @@ public class CarController : MonoBehaviour
             CarStoped();
         }
     }
-
+    
     private void CarStoped()
     {
         speed = 0;
@@ -104,9 +123,9 @@ public class CarController : MonoBehaviour
         }
     }
 
-    public void SetPlayerData(PlayerData pd)
+    public void SetPlayerData(SwipeGame_PlayerData pd)
     {
-        this.playerData = pd;
+        this.swipeGamePlayerData = pd;
     }
     
 }
