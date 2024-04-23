@@ -76,6 +76,7 @@ namespace UDPGameServer
                 Console.WriteLine($"[{endPoint}] User Login SUCCESS ({id}, {password})");
 
                 LoadOtherClients(endPoint);
+                SendUserRankToTargetClient(endPoint);
             }
             else
             {
@@ -152,6 +153,7 @@ namespace UDPGameServer
                 ServerHandler.SendToClient(endPoint, buf);
                 
                 LoadOtherClients(endPoint);
+                SendUserRankToTargetClient(endPoint);
             }
             else
             {
@@ -229,8 +231,8 @@ namespace UDPGameServer
             {
                 return;
             }
-            DatabaseHandler.SaveGameDataToDataBase(id, INGAME_MAX_LENGTH - length, out SwipeGame_GamePlayData[] gamePlayDatas);
-            SendUserRankToInGameClients(in gamePlayDatas);
+            DatabaseHandler.SaveGameDataToDataBase(id, INGAME_MAX_LENGTH - length);
+            SendUserRankToInGameClients();
         }
         private static void SendReTryGameToInGameClients(IPEndPoint endPoint, byte[] datas = null)
         {
@@ -240,8 +242,9 @@ namespace UDPGameServer
             byte[] packetBytes = PackPacket(PacketData.EPacketType.ReTryGame, idBytes);
             ServerHandler.SendToClientList(packetBytes);
         }
-        private static void SendUserRankToInGameClients(in SwipeGame_GamePlayData[] gamePlayDatas)
+        private static void SendUserRankToInGameClients()
         {
+            DatabaseHandler.SortGamePlayData(out SwipeGame_GamePlayData[] gamePlayDatas);
             int size = SwipeGame_GamePlayData.GetByteSize();
             byte[] rankingBytes = new byte[size * gamePlayDatas.Length];
 
@@ -255,6 +258,23 @@ namespace UDPGameServer
 
             byte[] packetBytes = PackPacket(PacketData.EPacketType.SendUserRank, rankingBytes);
             ServerHandler.SendToInGameClientList(packetBytes);
+        }
+        private static void SendUserRankToTargetClient(IPEndPoint endPoint)
+        {
+            DatabaseHandler.SortGamePlayData(out SwipeGame_GamePlayData[] gamePlayDatas);
+            int size = SwipeGame_GamePlayData.GetByteSize();
+            byte[] rankingBytes = new byte[size * gamePlayDatas.Length];
+
+            // TODO: SET RANKINGBYTES
+            for (int i = 0; i < gamePlayDatas.Length; i++)
+            {
+                int offset = size * i;
+                byte[] gamePlayDataBytes = gamePlayDatas[i].ChangeToBytes();
+                Array.Copy(gamePlayDataBytes, 0, rankingBytes, offset, size);
+            }
+
+            byte[] packetBytes = PackPacket(PacketData.EPacketType.SendUserRank, rankingBytes);
+            ServerHandler.SendToClient(endPoint, packetBytes);
         }
     }
 }

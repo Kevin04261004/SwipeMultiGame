@@ -109,18 +109,20 @@ namespace UDPGameServer
                 }
             }
         }
-        public static void SaveGameDataToDataBase(string id, float length, out SwipeGame_GamePlayData[] gamePlayDatas)
+        public static void SaveGameDataToDataBase(string id, float length)
         {
             SwipeGame_GamePlayData data = new SwipeGame_GamePlayData(id, length, DateTime.Now);
             InsertData(data);
+        }
+        public static void SortGamePlayData(out SwipeGame_GamePlayData[] gamePlayDatas)
+        {
             gamePlayDatas = SortGamePlayData();
             Console.WriteLine("===== 10등 순위 =====");
-            for(int i = 0; i < gamePlayDatas.Length;++i)
+            for (int i = 0; i < gamePlayDatas.Length; ++i)
             {
                 Console.WriteLine($"id: {gamePlayDatas[i].Id}, length: {gamePlayDatas[i].Length}");
             }
             Console.WriteLine("===== 끝 !!!!! =====");
-             
         }
         public static SwipeGame_PlayerData GetPlayerDataOrNull(string id)
         {
