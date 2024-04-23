@@ -184,8 +184,9 @@ public class InGameHandler : MonoBehaviour
         {
             for (int i = 0; i < gpdList.Count; ++i)
             {
-                scoreRankingArray[i].text =
-                    $"{i + 1}. {gpdList[i].Id.TrimEnd('\0')}\t{gpdList[i].Length}\t{gpdList[i].DateTime}";
+                string temp =
+                    $"{i + 1,-1}.\t{gpdList[i].Id.TrimEnd('\0'),-16}\t{gpdList[i].Length:F2}m \t{gpdList[i].DateTime}";
+                scoreRankingArray[i].text = temp;
             }
         });
     }
