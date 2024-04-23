@@ -180,7 +180,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 4. NickName1234 (0.002m)
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
   m_sharedMaterial: {fileID: -6785573883769004767, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
@@ -1332,7 +1334,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 6. NickName1234 (0.002m)
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
   m_sharedMaterial: {fileID: -6785573883769004767, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
@@ -1466,7 +1470,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 3. NickName1234 (0.002m)
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
   m_sharedMaterial: {fileID: -6785573883769004767, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
@@ -1837,7 +1843,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 5. NickName1234 (0.002m)
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
   m_sharedMaterial: {fileID: -6785573883769004767, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
@@ -2406,8 +2414,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1510430203}
   m_HandleRect: {fileID: 1510430202}
   m_Direction: 2
-  m_Value: -0.00000015859526
-  m_Size: 0.49682152
+  m_Value: 1
+  m_Size: 0.49683037
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2462,7 +2470,7 @@ GameObject:
   - component: {fileID: 748065753}
   - component: {fileID: 748065752}
   m_Layer: 5
-  m_Name: Content
+  m_Name: ScoreRankingParent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2494,7 +2502,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 384.84857}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 764.8486}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &748065752
@@ -2773,7 +2781,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 9. NickName1234 (0.002m)
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
   m_sharedMaterial: {fileID: -6785573883769004767, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
@@ -3740,7 +3750,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 8. NickName1234 (0.002m)
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
   m_sharedMaterial: {fileID: -6785573883769004767, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
@@ -3874,7 +3886,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 7. NickName1234 (0.002m)
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
   m_sharedMaterial: {fileID: -6785573883769004767, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
@@ -4384,6 +4398,17 @@ MonoBehaviour:
   car_prefab: {fileID: 3937831912434828467, guid: 3763ab8ddfcaa274b93e570b5e6a32ea, type: 3}
   loginPanel: {fileID: 1653718230}
   <retryButton>k__BackingField: {fileID: 182438560}
+  scoreRankingArray:
+  - {fileID: 1477549212}
+  - {fileID: 1735818543}
+  - {fileID: 567041970}
+  - {fileID: 26128299}
+  - {fileID: 628315502}
+  - {fileID: 531315440}
+  - {fileID: 1056162364}
+  - {fileID: 1055082318}
+  - {fileID: 819025515}
+  - {fileID: 1791583758}
 --- !u!1 &1222793906
 GameObject:
   m_ObjectHideFlags: 0
@@ -5032,7 +5057,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 1. NickName1234 (0.002m) (2024.12.25)
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
   m_sharedMaterial: {fileID: -6785573883769004767, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
@@ -5571,7 +5598,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 2. NickName1234 (0.002m)
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
   m_sharedMaterial: {fileID: -6785573883769004767, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
@@ -5907,7 +5936,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 10. NickName1234 (0.002m)
+  m_text: '
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}
   m_sharedMaterial: {fileID: -6785573883769004767, guid: a2c770e654e09e14aa30237eccf73e31, type: 2}

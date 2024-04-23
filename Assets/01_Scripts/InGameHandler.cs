@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using TMPro;
 using UnityEngine;
 using Util;
 
@@ -12,7 +13,7 @@ public class InGameHandler : MonoBehaviour
     [SerializeField] private GameObject car_prefab;
     [SerializeField] private GameObject loginPanel;
     [field: SerializeField] public GameObject retryButton { get; private set; }
-
+    [SerializeField] private TextMeshProUGUI[] scoreRankingArray;
     private Dictionary<GameObject, SwipeGame_PlayerData>
         playerDictionary = new Dictionary<GameObject, SwipeGame_PlayerData>();
     private NetworkManager networkManager;
@@ -24,11 +25,14 @@ public class InGameHandler : MonoBehaviour
         gameDirector = FindObjectOfType<GameDirector>();
         Debug.Assert(gameDirector);
         
+        Debug.Assert(scoreRankingArray.Length == 10, "scoreRankingArray배열에 10개의 TextMeshPro를 넣어주세요.");
+        
         PacketHandler.SetHandler(PacketData.EPacketType.UserEnterInGame, OtherUserEnterInGame);
         PacketHandler.SetHandler(PacketData.EPacketType.UserExitInGame, OtherUserExitInGame);
         PacketHandler.SetHandler(PacketData.EPacketType.LoadOtherClient, LoadOtherClients);
         PacketHandler.SetHandler(PacketData.EPacketType.CarMove, CarMoveReceived);
         PacketHandler.SetHandler(PacketData.EPacketType.ReTryGame, ReTryGame);
+        PacketHandler.SetHandler(PacketData.EPacketType.SendUserRank, SetUserRank);
     }
 
     public void StartGame(byte[] data)
@@ -77,7 +81,6 @@ public class InGameHandler : MonoBehaviour
 
         MainThreadWorker.Instance.EnqueueJob(()=>CreateNewPlayer(pd));
     }
-
     private void OtherUserExitInGame(byte[] data) // id
     {
         string id = data.ChangeToString();
@@ -90,7 +93,6 @@ public class InGameHandler : MonoBehaviour
         playerDictionary.Remove(found);
         MainThreadWorker.Instance.EnqueueJob(()=>Destroy(found));
     }
-    
     private void LoadOtherClients(byte[] data) // PlayerData[]
     {
         int size = SwipeGame_PlayerData.GetByteSize();
@@ -109,7 +111,6 @@ public class InGameHandler : MonoBehaviour
             MainThreadWorker.Instance.EnqueueJob(()=>CreateNewPlayer(pd));
         }
     }
-
     // 서버에게 유저 인풋(시작과 끝)을 보낸다.
     public void SendCarMove(Vector2 startPos, Vector2 endPos)
     {
@@ -118,7 +119,6 @@ public class InGameHandler : MonoBehaviour
         byte[] packetData = PacketHandler.PackPacket(PacketData.EPacketType.RequestCarMove,startByte, endByte);
         networkManager.SendToServer(packetData);
     }
-
     private void CarMoveReceived(byte[] data) // magnitude, id(string)
     {
         float magnitude = BitConverter.ToSingle(data, 0);
@@ -135,14 +135,12 @@ public class InGameHandler : MonoBehaviour
             MainThreadWorker.Instance.EnqueueJob(()=>playerPair.Key.GetComponent<CarController>().Move(magnitude));
         }
     }
-
     public void RequireReTry()
     {
         retryButton.SetActive(false);
         byte[] packetData = PacketHandler.PackPacket(PacketData.EPacketType.RequireReTryGame);
         networkManager.SendToServer(packetData);
     }
-
     private void ReTryGame(byte[] data)
     {
         string id = data.ChangeToString();
@@ -163,5 +161,32 @@ public class InGameHandler : MonoBehaviour
                 }
             });
         }
+    }
+    private void SetUserRank(byte[] data)
+    {
+        int size = SwipeGame_GamePlayData.GetByteSize();
+        if (data.Length % size != 0)
+        {
+            return;
+        }
+        
+        int count = data.Length / size;
+        List<SwipeGame_GamePlayData> gpdList = new List<SwipeGame_GamePlayData>(count);
+        for (int i = 0; i < count; ++i)
+        {
+            int offset = i * size;
+            byte[] playerDataBytes = new byte[size];
+            Array.Copy(data, offset, playerDataBytes, 0, size);
+            gpdList.Add(playerDataBytes.ChangeToGamePlayData());
+        }
+                    
+        MainThreadWorker.Instance.EnqueueJob(() =>
+        {
+            for (int i = 0; i < gpdList.Count; ++i)
+            {
+                scoreRankingArray[i].text =
+                    $"{i + 1}. {gpdList[i].Id.TrimEnd('\0')}\t{gpdList[i].Length}\t{gpdList[i].DateTime}";
+            }
+        });
     }
 }

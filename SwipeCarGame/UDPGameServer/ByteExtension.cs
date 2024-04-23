@@ -17,7 +17,6 @@ namespace UDPGameServer
         {
             SwipeGame_PlayerData playerData = new SwipeGame_PlayerData();
 
-            // offset을 사용하여 바이트 배열에서 각 필드의 데이터를 추출합니다.
             int offset = 0;
             playerData.id = Encoding.UTF8.GetString(data, offset, SwipeGame_PlayerData.ID_SIZE);
             offset += SwipeGame_PlayerData.ID_SIZE;
@@ -30,6 +29,18 @@ namespace UDPGameServer
             playerData.lastConnectTime = BitConverter.ToSingle(data, offset);
 
             return playerData;
+        }
+        public static SwipeGame_GamePlayData ChangeToGamePlayData(this byte[] data)
+        {
+            int offset = 0;
+            string id = Encoding.UTF8.GetString(data, offset, SwipeGame_GamePlayData.ID_SIZE);
+            offset += SwipeGame_GamePlayData.ID_SIZE;
+            float length = BitConverter.ToSingle(data, offset);
+            offset += sizeof(float);
+            string dt = Encoding.UTF8.GetString(data, offset, SwipeGame_GamePlayData.DATETIME_TO_STRING_SIZE);
+            SwipeGame_GamePlayData gameplayData = new SwipeGame_GamePlayData(id, length, dt);
+
+            return gameplayData;
         }
     }
 }

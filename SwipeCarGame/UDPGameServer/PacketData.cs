@@ -18,6 +18,7 @@ public static class PacketData
         LoadOtherClient, // 유저가 인게임에 접속했을 때, 이미 접속해있는 다른 클라이언트들의 정보를 보냄.
         CarMove, // 자동차가 이동할 magnitude를 보낸다.
         ReTryGame, // 자동차가 다시 경주할 수 있도록 한다.
+        SendUserRank, // 유저의 랭킹을 보낸다. <-- RequestCarMove에서 성공하면 DB에 저장하고 보낸다.
 
         /* ClientToServer */
         RequireUserLogin = 1000, // 16byte + 16byte 총 32byte를 보낸다.
@@ -27,5 +28,6 @@ public static class PacketData
         CreateUser, // 새로운 유저(계정)을 생성합니다.
         RequestCarMove, // 유저가 입력한 시작점과 끝점
         RequireReTryGame, // 유저가 게임을 다시 시작할 수 있게 도와준다.
+    
     };
 }

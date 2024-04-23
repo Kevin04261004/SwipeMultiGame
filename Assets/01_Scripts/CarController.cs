@@ -78,7 +78,6 @@ public class CarController : MonoBehaviour
         {
             return;
         }
-        print("UPDATE");
         if (Input.GetMouseButtonDown(0))
         {
             startPos = Input.mousePosition;

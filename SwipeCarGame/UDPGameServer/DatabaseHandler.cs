@@ -109,6 +109,19 @@ namespace UDPGameServer
                 }
             }
         }
+        public static void SaveGameDataToDataBase(string id, float length, out SwipeGame_GamePlayData[] gamePlayDatas)
+        {
+            SwipeGame_GamePlayData data = new SwipeGame_GamePlayData(id, length, DateTime.Now);
+            InsertData(data);
+            gamePlayDatas = SortGamePlayData();
+            Console.WriteLine("===== 10등 순위 =====");
+            for(int i = 0; i < gamePlayDatas.Length;++i)
+            {
+                Console.WriteLine($"id: {gamePlayDatas[i].Id}, length: {gamePlayDatas[i].Length}");
+            }
+            Console.WriteLine("===== 끝 !!!!! =====");
+             
+        }
         public static SwipeGame_PlayerData GetPlayerDataOrNull(string id)
         {
             SwipeGame_PlayerData playerData = null;
@@ -262,7 +275,15 @@ return_fail:
                     if (value != null)
                     {
                         valuesBuilder.Append("\'");
-                        valuesBuilder.Append(value.ToString());
+                        switch(property.PropertyType.ToString())
+                        {
+                            case "System.DateTime":
+                                valuesBuilder.Append(((DateTime)value).ToString("yyyy-MM-dd HH:mm:ss"));
+                                break;
+                            default:
+                                valuesBuilder.Append(value.ToString());
+                                break;
+                        }
                         valuesBuilder.Append("\'");
                     }
                     else
@@ -292,6 +313,55 @@ return_fail:
                 }
             }
         }
+        private static SwipeGame_GamePlayData[] SortGamePlayData()
+        {
+            Debug.Assert(connection != null);
+            try
+            {
+                string tableName = "GamePlayData";
+
+                connection.Open();
+                string sql = $"SELECT * FROM {tableName} ORDER BY Length ASC LIMIT 10";
+                Console.WriteLine($"[INPUT] {sql}");
+                MySqlCommand cmd = new MySqlCommand(sql, connection);
+
+                List<SwipeGame_GamePlayData> resultList = new List<SwipeGame_GamePlayData>(); // 결과를 저장할 리스트 생성
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        SwipeGame_GamePlayData pd = readDataFromMySQLReader(reader);
+                        resultList.Add(pd);
+                    }
+                }
+
+                connection.Close();
+
+                return resultList.ToArray(); // 리스트를 배열로 변환하여 반환
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.StackTrace);
+                return null;
+            }
+            finally
+            {
+                if (connection != null)
+                {
+                    connection.Close();
+                }
+            }
+        }
+        private static SwipeGame_GamePlayData readDataFromMySQLReader(MySqlDataReader reader)
+        {
+            string id = reader.GetString("id");
+            float length = reader.GetFloat("Length");
+            DateTime dateTime = reader.GetDateTime("DateTime");
+
+            return new SwipeGame_GamePlayData(id, length, dateTime);
+        }
+
         private static void SelectData<T>(string condition)
         {
             Debug.Assert(connection != null);

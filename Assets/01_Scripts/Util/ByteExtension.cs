@@ -28,5 +28,17 @@ namespace Util
 
             return swipeGamePlayerData;
         }
+        public static SwipeGame_GamePlayData ChangeToGamePlayData(this byte[] data)
+        {
+            int offset = 0;
+            string id = Encoding.UTF8.GetString(data, offset, SwipeGame_GamePlayData.ID_SIZE);
+            offset += SwipeGame_GamePlayData.ID_SIZE;
+            float length = BitConverter.ToSingle(data, offset);
+            offset += sizeof(float);
+            string dt = Encoding.UTF8.GetString(data, offset, SwipeGame_GamePlayData.DATETIME_TO_STRING_SIZE);
+            SwipeGame_GamePlayData gameplayData = new SwipeGame_GamePlayData(id, length, dt);
+
+            return gameplayData;
+        }
     }
 }

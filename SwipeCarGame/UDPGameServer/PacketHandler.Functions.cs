@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,7 +11,7 @@ namespace UDPGameServer
 {
     public static partial class PacketHandler
     {
-
+        private static readonly float INGAME_MAX_LENGTH = 14.5f;
         private static void SetAllHandlers()
         {
             SetHandler(PacketData.EPacketType.ConnectClient, ClientConnected);
@@ -224,6 +225,12 @@ namespace UDPGameServer
 
             byte[] packetBytes = PackPacket(PacketData.EPacketType.CarMove, lengthBytes, idBytes);
             ServerHandler.SendToInGameClientList(packetBytes);
+            if(INGAME_MAX_LENGTH < length)
+            {
+                return;
+            }
+            DatabaseHandler.SaveGameDataToDataBase(id, INGAME_MAX_LENGTH - length, out SwipeGame_GamePlayData[] gamePlayDatas);
+            SendUserRankToInGameClients(in gamePlayDatas);
         }
         private static void SendReTryGameToInGameClients(IPEndPoint endPoint, byte[] datas = null)
         {
@@ -232,6 +239,22 @@ namespace UDPGameServer
             idBytes = ServerHandler.inGameClients[endPoint].id.ChangeToByte();
             byte[] packetBytes = PackPacket(PacketData.EPacketType.ReTryGame, idBytes);
             ServerHandler.SendToClientList(packetBytes);
+        }
+        private static void SendUserRankToInGameClients(in SwipeGame_GamePlayData[] gamePlayDatas)
+        {
+            int size = SwipeGame_GamePlayData.GetByteSize();
+            byte[] rankingBytes = new byte[size * gamePlayDatas.Length];
+
+            // TODO: SET RANKINGBYTES
+            for(int i = 0; i <gamePlayDatas.Length; i++)
+            {
+                int offset = size * i;
+                byte[] gamePlayDataBytes = gamePlayDatas[i].ChangeToBytes();
+                Array.Copy(gamePlayDataBytes, 0, rankingBytes, offset, size);
+            }
+
+            byte[] packetBytes = PackPacket(PacketData.EPacketType.SendUserRank, rankingBytes);
+            ServerHandler.SendToInGameClientList(packetBytes);
         }
     }
 }
