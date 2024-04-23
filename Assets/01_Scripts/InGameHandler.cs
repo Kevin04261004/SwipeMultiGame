@@ -84,7 +84,6 @@ public class InGameHandler : MonoBehaviour
     private void OtherUserExitInGame(byte[] data) // id
     {
         string id = data.ChangeToString();
-        Debug.Log($"ID: {id}님이 접속을 종료하였습니다.");
 
         var found = playerDictionary
             .FirstOrDefault(x => x.Value.id == id).Key;

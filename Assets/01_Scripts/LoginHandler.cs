@@ -73,14 +73,11 @@ public class LoginHandler : MonoBehaviour
 
     private void LoginFail(byte[] data = null)
     {
-        Debug.Log("로그인에 실패하였습니다.");
         MainThreadWorker.Instance.EnqueueJob(()=>SetErrorCode(ERRORCODE_LOGIN_FAIL, 3));
     }
 
     private void Login(byte[] data) // data = id(16), nickName
     {
-        Debug.Log("로그인에 성공하였습니다.");
-        
         MainThreadWorker.Instance.EnqueueJob(() => inGameHandler.StartGame(data));
     }
 

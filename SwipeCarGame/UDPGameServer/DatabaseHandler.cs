@@ -363,7 +363,6 @@ return_fail:
 
             return new SwipeGame_GamePlayData(id, length, dateTime);
         }
-
         private static void SelectData<T>(string condition)
         {
             Debug.Assert(connection != null);
