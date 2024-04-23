@@ -69,7 +69,9 @@ public class InGameHandler : MonoBehaviour
     {
         // 자동차 생성 및 playerData(id) 초기화 진행
         GameObject car = Instantiate(car_prefab, spawnPos);
-        car.GetComponent<CarController>().SetPlayerData(pd);
+        CarController temp = car.GetComponent<CarController>();
+        temp.SetPlayerData(pd);
+        temp.SetNickName(pd.nickName);
         
         playerDictionary.Add(car, pd);
         
@@ -183,8 +185,13 @@ public class InGameHandler : MonoBehaviour
         {
             for (int i = 0; i < gpdList.Count; ++i)
             {
-                string temp =
-                    $"{i + 1,-1}.\t{gpdList[i].Id.TrimEnd('\0'),-16}\t{gpdList[i].Length:F2}m \t{gpdList[i].DateTime}";
+                string rank = (i + 1).ToString(); // 순위
+                string nickname = gpdList[i].NickName.TrimEnd('\0'); // 닉네임
+                string length = gpdList[i].Length.ToString("F6") + "m"; // 길이 (미터)
+                string datetime = gpdList[i].DateTime.ToString(); // 날짜 및 시간
+
+                string temp = $"{rank,-5} {nickname,-20} {length,-12} {datetime, 20}";
+                
                 scoreRankingArray[i].text = temp;
             }
         });

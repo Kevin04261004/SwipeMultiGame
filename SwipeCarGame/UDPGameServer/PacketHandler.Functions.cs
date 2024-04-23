@@ -215,6 +215,13 @@ namespace UDPGameServer
             float length = (endPosX - startPosX) * 5.38f; // 공식 작성하기.
             Console.WriteLine($"EndPosX: {endPosX}, StartPosX: {startPosX}, length: {length}");
             SendCarMagnitudeToInGameClients(endPoint, length);
+            
+            if (INGAME_MAX_LENGTH < length)
+            {
+                return;
+            }
+            DatabaseHandler.SaveGameDataToDataBase(ServerHandler.inGameClients[endPoint].nickName, INGAME_MAX_LENGTH - length);
+            SendUserRankToInGameClients();
         }
         private static void SendCarMagnitudeToInGameClients(IPEndPoint endPoint, float length)
         {
@@ -227,12 +234,6 @@ namespace UDPGameServer
 
             byte[] packetBytes = PackPacket(PacketData.EPacketType.CarMove, lengthBytes, idBytes);
             ServerHandler.SendToInGameClientList(packetBytes);
-            if(INGAME_MAX_LENGTH < length)
-            {
-                return;
-            }
-            DatabaseHandler.SaveGameDataToDataBase(id, INGAME_MAX_LENGTH - length);
-            SendUserRankToInGameClients();
         }
         private static void SendReTryGameToInGameClients(IPEndPoint endPoint, byte[] datas = null)
         {
@@ -245,6 +246,10 @@ namespace UDPGameServer
         private static void SendUserRankToInGameClients()
         {
             DatabaseHandler.SortGamePlayData(out SwipeGame_GamePlayData[] gamePlayDatas);
+            if (gamePlayDatas == null)
+            {
+                return;
+            }
             int size = SwipeGame_GamePlayData.GetByteSize();
             byte[] rankingBytes = new byte[size * gamePlayDatas.Length];
 
@@ -262,6 +267,10 @@ namespace UDPGameServer
         private static void SendUserRankToTargetClient(IPEndPoint endPoint)
         {
             DatabaseHandler.SortGamePlayData(out SwipeGame_GamePlayData[] gamePlayDatas);
+            if(gamePlayDatas == null)
+            {
+                return;
+            }
             int size = SwipeGame_GamePlayData.GetByteSize();
             byte[] rankingBytes = new byte[size * gamePlayDatas.Length];
 

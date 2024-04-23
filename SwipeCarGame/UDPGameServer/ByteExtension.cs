@@ -33,8 +33,8 @@ namespace UDPGameServer
         public static SwipeGame_GamePlayData ChangeToGamePlayData(this byte[] data)
         {
             int offset = 0;
-            string id = Encoding.UTF8.GetString(data, offset, SwipeGame_GamePlayData.ID_SIZE);
-            offset += SwipeGame_GamePlayData.ID_SIZE;
+            string id = Encoding.UTF8.GetString(data, offset, SwipeGame_GamePlayData.NICKNAME_SIZE);
+            offset += SwipeGame_GamePlayData.NICKNAME_SIZE;
             float length = BitConverter.ToSingle(data, offset);
             offset += sizeof(float);
             string dt = Encoding.UTF8.GetString(data, offset, SwipeGame_GamePlayData.DATETIME_TO_STRING_SIZE);

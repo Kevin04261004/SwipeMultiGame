@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
 
 public class CarController : MonoBehaviour
@@ -8,6 +9,7 @@ public class CarController : MonoBehaviour
     private LineRenderer lineRenderer;
     private GameObject flag;
     private Transform SpawnTransform;
+    [SerializeField] private TextMeshProUGUI nickNameTMP;
     private static readonly float STOP_SPEED = 0.002f;
     private static readonly float SPEED_LOSE = 0.96f;
     private static readonly float LESS_TOUCH = 10f;
@@ -47,15 +49,13 @@ public class CarController : MonoBehaviour
         Debug.Assert(flag != null);
         SpawnTransform = GameObject.Find("SpawnPos").transform;
         Debug.Assert(SpawnTransform != null);
-
+        Debug.Assert(nickNameTMP != null);
     }
-
     private void Start()
     {
         /* set params */
         cameraOffset = _cam.transform.position;
     }
-
     /* For Debugging */
     [ContextMenu("PrintCarInfo")]
     private void PrintCarInfo()
@@ -66,12 +66,10 @@ public class CarController : MonoBehaviour
         Debug.Log($"NickName: {swipeGamePlayerData.nickName}");
         Debug.Log($"IsHost = {swipeGamePlayerData.id == networkManager.hostId}");
     }
-
     public bool IsHost()
     {
         return swipeGamePlayerData.id == networkManager.hostId;
     }
-    
     private void Update()
     {
         if (swipeGamePlayerData == null || swipeGamePlayerData.id != networkManager.hostId || gameDirector.gameType != GameDirector.EGameType.InGame || hasSwipe)
@@ -113,7 +111,6 @@ public class CarController : MonoBehaviour
             hasSwipe = true;
         }
     }
-    
     public void Move(float magnitude)
     {
         /* Audio */
@@ -121,7 +118,6 @@ public class CarController : MonoBehaviour
         targetPos = (Vector2)transform.position + new Vector2(magnitude, 0);
         StartCoroutine(MoveCoroutine());
     }
-
     private IEnumerator MoveCoroutine()
     {
         float smoothTime = 1f;
@@ -137,7 +133,6 @@ public class CarController : MonoBehaviour
             inGameHandler.retryButton.SetActive(true);
         }
     }
-
     public void RetryGame()
     {
         hasSwipe = false;
@@ -146,5 +141,9 @@ public class CarController : MonoBehaviour
     public void SetPlayerData(SwipeGame_PlayerData pd)
     {
         this.swipeGamePlayerData = pd;
+    }
+    public void SetNickName(string nickName)
+    {
+        nickNameTMP.text = nickName;
     }
 }

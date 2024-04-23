@@ -7,12 +7,11 @@ using System.Threading;
 public class NetworkManager : MonoBehaviour
 {
     public static readonly int PORT_NUM = 10200;
-    public static readonly string SERVER_IP = "127.0.0.1";
+    private static readonly string SERVER_IP = "192.168.110.194";
     private Socket clientSocket;
     private EndPoint serverEndPoint;
     private Thread receiveThread;
     private byte[] partialBuffer = new byte[1024];
-
     public string hostId { get; set; } = null;
     private int partialBytesReceived = 0;
     public void Awake()
@@ -61,6 +60,7 @@ public class NetworkManager : MonoBehaviour
         byte[] connectUDP = PacketHandler.PackPacket(PacketData.EPacketType.DisconnectClient);
         Debug.Log("[Client] Exit UDP Server");
         SendToServer(connectUDP);
+        // clientSocket?.Close();
     }
 
     #endregion

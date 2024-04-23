@@ -109,18 +109,22 @@ namespace UDPGameServer
                 }
             }
         }
-        public static void SaveGameDataToDataBase(string id, float length)
+        public static void SaveGameDataToDataBase(string nickName, float length)
         {
-            SwipeGame_GamePlayData data = new SwipeGame_GamePlayData(id, length, DateTime.Now);
+            SwipeGame_GamePlayData data = new SwipeGame_GamePlayData(nickName, length, DateTime.Now);
             InsertData(data);
         }
         public static void SortGamePlayData(out SwipeGame_GamePlayData[] gamePlayDatas)
         {
-            gamePlayDatas = SortGamePlayData();
+            gamePlayDatas = SortGamePlayDataSQL();
+            if (gamePlayDatas == null)
+            {
+                return;
+            }
             Console.WriteLine("===== 10등 순위 =====");
             for (int i = 0; i < gamePlayDatas.Length; ++i)
             {
-                Console.WriteLine($"id: {gamePlayDatas[i].Id}, length: {gamePlayDatas[i].Length}");
+                Console.WriteLine($"id: {gamePlayDatas[i].NickName}, length: {gamePlayDatas[i].Length}");
             }
             Console.WriteLine("===== 끝 !!!!! =====");
         }
@@ -315,7 +319,7 @@ return_fail:
                 }
             }
         }
-        private static SwipeGame_GamePlayData[] SortGamePlayData()
+        private static SwipeGame_GamePlayData[] SortGamePlayDataSQL()
         {
             Debug.Assert(connection != null);
             try
@@ -323,6 +327,15 @@ return_fail:
                 string tableName = "GamePlayData";
 
                 connection.Open();
+                string countSQL = $"SELECT COUNT(*) FROM {tableName} WHERE 1";
+                MySqlCommand CountSQLcmd = new MySqlCommand(countSQL, connection);
+
+                int count = Convert.ToInt32(CountSQLcmd.ExecuteScalar());
+                if(count <= 0)
+                {
+                    return null;
+                }
+
                 string sql = $"SELECT * FROM {tableName} ORDER BY Length ASC LIMIT 10";
                 Console.WriteLine($"[INPUT] {sql}");
                 MySqlCommand cmd = new MySqlCommand(sql, connection);
@@ -357,7 +370,7 @@ return_fail:
         }
         private static SwipeGame_GamePlayData readDataFromMySQLReader(MySqlDataReader reader)
         {
-            string id = reader.GetString("id");
+            string id = reader.GetString("NickName");
             float length = reader.GetFloat("Length");
             DateTime dateTime = reader.GetDateTime("DateTime");
 
