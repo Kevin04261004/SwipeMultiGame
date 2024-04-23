@@ -204,26 +204,25 @@ namespace UDPGameServer
             byte[] packetData = PackPacket(PacketData.EPacketType.UserExitInGame, idBytes);
             ServerHandler.SendToInGameClientListExcludeEndPoint(packetData, excludeEndPoint);
         }
-
         private static void CalculateCarMove(IPEndPoint endPoint, byte[] datas) // 시작과 끝점
         {
-            float startPos = BitConverter.ToSingle(datas, 0);
-            float endPos = BitConverter.ToSingle(datas, sizeof(float));
+            float startPosX = BitConverter.ToSingle(datas, 0);
+            float endPosX = BitConverter.ToSingle(datas, sizeof(float));
 
-            float magnitude = (endPos - startPos) * 1.5f; // 공식 작성하기.
-            SendCarMagnitudeToInGameClients(endPoint, magnitude);
+            float length = (endPosX - startPosX) * 5.38f; // 공식 작성하기.
+            Console.WriteLine($"EndPosX: {endPosX}, StartPosX: {startPosX}, length: {length}");
+            SendCarMagnitudeToInGameClients(endPoint, length);
         }
-
-        private static void SendCarMagnitudeToInGameClients(IPEndPoint endPoint, float magitude)
+        private static void SendCarMagnitudeToInGameClients(IPEndPoint endPoint, float length)
         {
             string id = ServerHandler.inGameClients[endPoint].id;
-            byte[] magnitudeBytes = BitConverter.GetBytes(magitude);
+            byte[] lengthBytes = BitConverter.GetBytes(length);
 
             byte[] idBytes = new byte[SwipeGame_PlayerData.ID_SIZE];
             Arrays.Fill(idBytes, 0);
             idBytes = id.ChangeToByte();
 
-            byte[] packetBytes = PackPacket(PacketData.EPacketType.CarMove, magnitudeBytes, idBytes);
+            byte[] packetBytes = PackPacket(PacketData.EPacketType.CarMove, lengthBytes, idBytes);
             ServerHandler.SendToInGameClientList(packetBytes);
         }
         private static void SendReTryGameToInGameClients(IPEndPoint endPoint, byte[] datas = null)

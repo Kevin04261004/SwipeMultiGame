@@ -10,7 +10,7 @@ public class CarController : MonoBehaviour
     private Transform SpawnTransform;
     private static readonly float STOP_SPEED = 0.002f;
     private static readonly float SPEED_LOSE = 0.96f;
-    
+    private static readonly float LESS_TOUCH = 10f;
     private Vector2 startPos;
     private Vector2 lastPos;
     private Camera _cam;
@@ -102,13 +102,15 @@ public class CarController : MonoBehaviour
             lastPos = Input.mousePosition;
             
             float swipeLength = this.lastPos.x - startPos.x;
-            speed = swipeLength / 500.0f;
-            
             /* UI or Other */
             lineRenderer.enabled = false;
+            if (swipeLength < LESS_TOUCH)
+            {
+                return;
+            }
 
             /* Network */
-            inGameHandler.SendCarMove(startPos, lastPos);
+            inGameHandler.SendCarMove(_cam.ScreenToWorldPoint(startPos), _cam.ScreenToWorldPoint(lastPos));
             hasSwipe = true;
         }
     }
@@ -123,10 +125,9 @@ public class CarController : MonoBehaviour
 
     private IEnumerator MoveCoroutine()
     {
-        float smoothTime = 1f; // 부드러운 이동을 위한 시간
+        float smoothTime = 1f;
         while (Vector2.Distance(transform.position, targetPos) > STOP_SPEED)
         {
-            // SmoothDamp를 사용하여 부드럽게 이동합니다.
             transform.position = Vector2.SmoothDamp(transform.position, targetPos, ref velocity, smoothTime);
             yield return null;
         }
@@ -134,8 +135,8 @@ public class CarController : MonoBehaviour
         if (IsHost())
         {
             gameDirector.gameType = GameDirector.EGameType.GameEnd;
+            inGameHandler.retryButton.SetActive(true);
         }
-        inGameHandler.retryButton.SetActive(true);
     }
 
     public void RetryGame()

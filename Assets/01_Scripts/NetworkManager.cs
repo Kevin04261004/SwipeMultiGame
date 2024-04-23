@@ -7,6 +7,7 @@ using System.Threading;
 public class NetworkManager : MonoBehaviour
 {
     public static readonly int PORT_NUM = 10200;
+    public static readonly string SERVER_IP = "127.0.0.1";
     private Socket clientSocket;
     private EndPoint serverEndPoint;
     private Thread receiveThread;
@@ -26,7 +27,8 @@ public class NetworkManager : MonoBehaviour
         clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         Debug.Assert(clientSocket != null);
         // 서버 EndPoint 세팅
-        serverEndPoint = new IPEndPoint(IPAddress.Loopback, PORT_NUM);
+        IPAddress ipAddress = IPAddress.Parse(SERVER_IP);
+        serverEndPoint = new IPEndPoint(ipAddress, PORT_NUM);
         Debug.Assert(serverEndPoint != null);
 
         // 굳이 함수화를 안해도 되는데, 가독성을 위해...

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using UnityEngine;
 using Util;
@@ -81,17 +82,13 @@ public class InGameHandler : MonoBehaviour
     {
         string id = data.ChangeToString();
         Debug.Log($"ID: {id}님이 접속을 종료하였습니다.");
-        foreach (var player in playerDictionary)
-        {
-            if (player.Value.id != id)
-            {
-                continue;
-            }
-            
-            GameObject destroyObj = player.Key.gameObject;
-            playerDictionary.Remove(player.Key);
-            MainThreadWorker.Instance.EnqueueJob(()=>Destroy(destroyObj));
-        }
+
+        var found = playerDictionary
+            .FirstOrDefault(x => x.Value.id == id).Key;
+        if (found == null) return;
+
+        playerDictionary.Remove(found);
+        MainThreadWorker.Instance.EnqueueJob(()=>Destroy(found));
     }
     
     private void LoadOtherClients(byte[] data) // PlayerData[]

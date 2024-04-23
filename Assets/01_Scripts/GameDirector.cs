@@ -43,7 +43,7 @@ public class GameDirector : MonoBehaviour
                 }
                 break;
             case EGameType.GameEnd:
-                distanceTMP.text = "GameEnd!!! Restart Button to ReStart.";
+                distanceTMP.text = "GameEnd!!!\nPress Button to ReTry.";
                 break;
             case EGameType.Pause:
                 break;
